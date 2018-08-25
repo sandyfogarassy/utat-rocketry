@@ -1,0 +1,15 @@
+{
+  "name": "rocketry",
+  "version": "1.0.0",
+  "description": "Engine UI (Testing & Launch)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Sandy Fogarassy",
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^2.7.2",
+    "jquery": "^3.3.1"
+  }
+}
