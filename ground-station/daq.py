@@ -12,15 +12,16 @@ class DAQ:
     def __init__(self):
         self._sources = []
         # get all possible sources dynamically
-        source_labels = nidaqmx.system.physical_channel.PhysicalChannel('test').ai_input_srcs
-        #source_labels = ['Dev1/ai0', 'Dev1/ai1']
-        # listen to all sources
-        for label in source_labels:
-            self._sources.append(DAQSource(label))
+        for chan_count in range(0,40):
+            try:
+                self._sources.append(DAQSource('Dev1/ai' + str(chan_count)))
+            except nidaqmx.errors.DaqError:
+                break
+
             
     def data(self):
         """Read and return data from all outputs"""
-        return [source.read() for source in self._sources]
+        return list([source.read() for source in self._sources])
     
     def close(self):
         """Remove bindings to the DAQ"""
@@ -30,7 +31,7 @@ class DAQ:
     @property
     def source_labels(self):
         """A list of all possible sources of info (outputs) of the physical DAQ"""
-        return [source.label for source in self._sources]
+        return list([source.label for source in self._sources])
     
 
 class DAQSource:

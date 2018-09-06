@@ -4,14 +4,19 @@
 """Example data logger that saves DAQ data to a CSV file in real-time"""
 
 import csv
+from time import time
 from daq import DAQ
 
 d = DAQ()
 
-with open('data.csv', 'wb') as dataFile:
+try:
+    dataFile = open('data.csv', 'w+')  # overwrite data file if it exists
     writer = csv.writer(dataFile, quoting=csv.QUOTE_ALL)
-    writer.writerow(d.source_labels)  # table headers
-    while True:
-        data = d.data()
+    writer.writerow(['date'] + d.source_labels)  # table headers
+    while True:  # kill/interrupt script to end program
+        data = [time()] + d.data()
         print(data)
         writer.writerow(data)
+finally:  # close/release everything
+    d.close()
+    dataFile.close()
