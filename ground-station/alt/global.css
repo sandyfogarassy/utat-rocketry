@@ -1,0 +1,19 @@
+* {
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	font-family: Arial;
+	font-size: 16px;
+	display: flex;
+	min-height: 100%;
+	flex-direction: row;
+	background-color: rgba(24,20,25,1);
+	color: white;
+}
+div,body {
+	border-color: rgb(0,175,139);
+	border-style: solid;
+	border-width: 0px;
+}
+.button

@@ -1,0 +1,125 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="global.css">
+		<style>
+			body {
+				align-items: stretch;
+				border-width: 3px;
+			}
+			div.sidebar {
+				min-width: 200px;
+				max-width: 300px;
+				border-right-width: 3px;
+				flex: 1;
+			}
+			div.sidebar label {
+				display: block;
+			}
+			div.sidebar input[value="Standby"] {color: yellow;}
+			div.sidebar input[value="Go"] {color: green;}
+			div.sidebar input[value="Stop"] {color: red;}
+			div.sidebar > div.primary {
+				margin: 20px;
+			}
+			div.sidebar > div.primary input {
+				background: none;
+				width: 50px;
+			}
+			div.sidebar > div.primary input.coupler {
+				width: 100%;
+			}
+			div.sidebar > div.primary input.coupler::placeholder {
+				content: "Missing Value"
+			}
+			div.main {
+				flex: 1;
+				display: flex;
+				align-items: stretch;
+				flex-direction: column;
+			}
+			div.main > div {
+				/*height: 33%;*/
+				border-bottom-width: 3px;
+				display: flex;
+				flex: 1;
+			}
+			div.main > div:last-child {
+				border-bottom-width: 0px;
+			}
+			div.main > div > div {
+				align-items: stretch;
+				flex-direction: column;
+				border-right-width: 3px;
+				flex: 1;
+				/*width: 50%;*/
+			}
+			div.main > div > div:last-child {
+				border-width: 0px;
+			}
+			div.block_label {
+				font-size: 26px;
+				text-align: center;
+				padding: 10px;
+			}
+		
+		</style>
+	</head>
+	<body>
+		<div class="sidebar green_border">
+			<div class="block_label" style="display:none">Sidebar</div>
+			<div class="primary">
+				<label>Ox. Tank Mass:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<label>Ox. Tank Pressure:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<label>Liquid Ox. Temp 1:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<label>Liquid Ox. Temp 2:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<label>Loaded Mass of Liquid:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<label>Flight Systems Continuity:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<label>Ignition Continuity:
+					<input type="text" readonly value="Standby">
+				</label>
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+			</div>
+		</div>
+		<div class="main">
+			<div class="green_border">
+				<div>
+					<div class="block_label">Block 1</div>
+				</div>
+				<div>
+					<div class="block_label">Block 2</div>
+				</div>
+			</div>
+			<div class="green_border">
+				<div>
+					<div class="block_label">Block 3</div>
+				</div>
+				<div>
+					<div class="block_label">Block 4</div>
+				</div>
+			</div>
+			<div class="green_border">
+				<div>
+					<div class="block_label">Block 5</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
