@@ -14,11 +14,12 @@
         outline: none;
         padding: 10px;
         cursor: pointer;
-        border: 2px solid rgb(0,175,139);;
+        border: 2px solid rgb(0,175,139);
         border-radius: 6px;
         top: 40%;
         left: 20%;
         font-family: "Courier", serif;
+        color: rgb(0,175,139);
       }
 
       .opening_drop-content{
@@ -28,6 +29,7 @@
         background-color: transparent;
         top: 55%;
         left: 20%;
+        color: white;
       }
 
       .opening_drop-content option{
@@ -75,6 +77,8 @@
         position: absolute;
         top: 60%;
         left: 20%;
+        border-radius: 6px;
+        outline: none;
       }
 
       .option_confirmation {
@@ -82,38 +86,41 @@
         top: 57%;
         left: 8%;
         text-align: center;
-        border: 2px solid rgb(0,175,139);;
+        border: 2px solid rgb(0,175,139);
         border-radius: 6px;
         width: 90px;
         max-width: 90px;
         height: 20px;
         max-height: 20px;
         font-family: "Courier", serif;
+        color: rgb(0,175,139);
       }
     </style>
   </head>
-  <body>
+  <body style = "background-color: rgba(24,20,25,1);">
     <script>
 
       const {ipcRenderer} = require('electron');
 
       function engine_test() {
         document.getElementById("option_confirmation").innerHTML = "Engine Test";
-        console.log("engine test");
       }
 
       function launch() {
         document.getElementById("option_confirmation").innerHTML = "Launch";
-        console.log("launch");
       }
 
       function submitStart() {
         if (document.getElementById("option_confirmation").innerHTML == 'Engine Test') {
           ipcRenderer.send('main', 'engine_test');
+          window.open('', '_self', '');
+          window.close();
         }
 
         else {
           ipcRenderer.send('main', 'launch');
+          window.open('', '_self', '');
+          window.close();
         }
       }
 
