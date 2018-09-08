@@ -6,10 +6,40 @@
 
   .required {
     position: relative;
+    color: rgb(0,175,139);
+  }
+
+  input {
+    outline: none;
+    border-radius: 6px;
+    border: none;
+    padding: 2px 2px;
+    background-color: rgb(43,59,62);
+  }
+
+  .save_btn {
+    margin-top: 10px;
+    border: 1px solid rgb(0,175,139);
+    border-radius: 6px;
+    color: rgb(0,175,139);
+    background-color: transparent;
+    outline: none;
+    padding: 5px 5px;
+  }
+
+  .save_btn:hover {
+    background-color: white;
+    color: rgb(0,175,139);
+    cursor: pointer;
+  }
+
+  .save_btn:active {
+    background-color: rgb(0,175,139);
+    color: white;
   }
 </style>
 </head>
-<body>
+<body style = "background-color: rgba(24,20,25,1);">
   <script>
     const electron = require('electron');
     const {ipcRenderer} = electron;
@@ -51,40 +81,26 @@
       if (document.getElementById("radio12").checked == true) {
         var rlotp2 = "less";
       }
-      if (document.getElementById("radio13").checked == true) {
-        var rlm = "between";
-      }
-      if (document.getElementById("radio14").checked == true) {
-        var rlm = "equal";
-      }
-      if (document.getElementById("radio15").checked == true) {
-        var rlm = "greater";
-      }
-      if (document.getElementById("radio16").checked == true) {
-        var rlm = "less";
-      }
+
 
       val1 = document.getElementById("ox_pres_required_value").value;
       val2 = document.getElementById("ox_temp1_required_value").value;
       val3 = document.getElementById("ox_temp2_required_value").value;
-      val4 = document.getElementById("liquid_mass_required_value").value;
 
       var saved_check = [
+        'setup',
         [rotp, val1],
         [rlotp1, val2],
-        [rlotp2, val3],
-        [rlm, val4]
+        [rlotp2, val3]
       ];
 
-      console.log(saved_check);
-
-      ipcRenderer.send('main', 'saved_check');
-      mainWindow.webContents.send('main', 'saved_check');
+      ipcRenderer.send('main', saved_check);
     }
 
+
   </script>
-    <form>
-      Required Ox. Tank Pressure: <br>
+    <form class = "required">
+      Required Ox. Tank Pressure (PSI): <br>
       <input type="radio" name = "a" id = "radio1">Between
       <input type="radio" name = "a" id = "radio2">Equal to
       <input type="radio" name = "a" id = "radio3">Greater than
@@ -92,7 +108,7 @@
       <input type="text" id = "ox_pres_required_value">
     </form>
     <form class="required">
-      Required Liquid Ox. Temp 1: <br>
+      Required Liquid Ox. Temp 1 (C): <br>
       <input type="radio" name = "b" id = "radio5">Between
       <input type="radio" name = "b" id = "radio6">Equal to
       <input type="radio" name = "b" id = "radio7">Greater than
@@ -100,22 +116,14 @@
       <input type="text" id = "ox_temp1_required_value">
     </form>
     <form class="required">
-      Required Liquid Ox. Temp 2: <br>
+      Required Liquid Ox. Temp 2 (C): <br>
       <input type="radio" name = "c" id = "radio9">Between
       <input type="radio" name = "c" id = "radio10">Equal to
       <input type="radio" name = "c" id = "radio11">Greater than
       <input type="radio" name = "c" id = "radio12">Less than <br>
       <input type="text" id = "ox_temp2_required_value">
     </form>
-    <form class="required">
-      Required Liquid Mass: <br>
-      <input type="radio" name = "d" id = "radio13">Between
-      <input type="radio" name = "d" id = "radio14">Equal to
-      <input type="radio" name = "d" id = "radio15">Greater than
-      <input type="radio" name = "d" id = "radio16">Less than <br>
-      <input type="text" id = "liquid_mass_required_value">
-    </form>
-  <button type="button" id = "save_configure" onClick = "saveSetup()">Save</button>
-  <p>Seperate 'Between' values with a comma (no spaces)</p>
+  <button class = "save_btn" type="submit" id = "save_configure" onClick = "saveSetup()">Save</button>
+  <p style = "color: rgb(0,175,139);">Seperate 'Between' values with a comma (no spaces)</p>
 </body>
 </html>
