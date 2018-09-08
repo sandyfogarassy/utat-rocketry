@@ -1,36 +1,88 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html>
 <head>
-  <style media="screen">
   <title>Abort Screen</title>
+  <style>
+
   .abort_options {
     position: absolute;
     top: 5%;
-    left: 5%;
-    font-size: 15px;
-    background-color: red;
+    left: 35%;
+    font-size: 30px;
+    background-color: transparent;
     border-radius: 6px;
-    color: white;
+    color: rgb(0,175,139);
     text-align: center;
+    font-family: "Courier", monospace;
   }
 
   .undo {
     position: absolute;
-    top: 10%;
-    left: 5%;
+    top: 80%;
+    left: 75%;
     font-size: 15px;
-    background-color: black;
+    background-color: green;
     color: white;
     border-radius: 6px;
     text-align: center;
     outline: none;
   }
+
+  .undo:hover {
+    color: green;
+    background-color: white;
+    cursor: pointer;
+  }
+
+  .undo:active {
+    background-color: green;
+    color: black;
+  }
+
+  .abort_confirmation {
+    position: absolute;
+    top: 80%;
+    left: 12%;
+    font-size: 15px;
+    background-color: red;
+    color: white;
+    border-radius: 6px;
+    text-align: center;
+    outline: none;
+  }
+
+  .abort_confirmation:hover {
+    color: red;
+    background-color: white;
+    cursor: pointer;
+  }
+
+  .abort_confirmation:active {
+    background-color: red;
+    color: black;
+  }
   </style>
 </head>
-<body>
-  <script src = "abort.js">
+<body style = "background-color: rgba(24,20,25,1);">
+  <script>
+
+    const electron = require('electron');
+    const {ipcRenderer} = electron;
+
+    function cancelAbort() {
+      console.log(123);
+      ipcRenderer.send('main', 'abort_cancelled');
+      window.open('', '_self', ''); window.close();
+    }
+
+    function confirmAbort() {
+      console.log(456);
+      ipcRenderer.send('main', 'abort_confirmed');
+      window.open('', '_self', ''); window.close();
+    }
   </script>
-  <button class = "abort_options" id = "abort_options">Abort Options</button>
-  <button class = "undo" id = "undo">The "OH SHIT, I hit the abort button, but we don't want to abort" button</button>
+  <p class = "abort_options" id = "abort_options">Abort Options</p>
+  <button class = "undo" id = "undo" onClick = "cancelAbort()">Cancel Abort</button>
+  <button class = "abort_confirmation" id = "abort_confirmation" onClick = "confirmAbort()">Confirm Abort</button>
 </body>
 </html>
