@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <title>Ground Station</title>
+  <script src = "functions.js"></script>
 <style>
 .grid-container {
   display: grid;
@@ -282,7 +283,31 @@
   color: rgb(0,175,139);
 }
 
-.btn_launch {
+.btn_launch_disabled {
+  outline: none;
+  position:absolute;
+  top: 370px;
+  left: 792px;
+  transition: .5s ease;
+  color: rgb(0,175,139);
+  background: transparent;
+  border: 1px solid rgb(0,175,139);
+  border-radius: 6px;
+  color: rgb(0,175,139);
+  padding: 43px 42px;
+  text-align: center;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  cursor: not-allowed;
+  text-decoration: none;
+  text-transform: uppercase;
+  opacity: 0.2;
+}
+
+.btn_launch_enabled {
   outline: none;
   position:absolute;
   top: 370px;
@@ -303,13 +328,16 @@
   cursor: pointer;
   text-decoration: none;
   text-transform: uppercase;
-}
-.btn_launch:hover {
-  background-color: rgb(0,175,139);
-  color: white;
+  opacity: 1.0;
 }
 
-.btn_launch:active {
+.btn_launch_enabled:hover {
+  background-color: rgb(0,175,139);
+  color: white;
+  cursor: pointer;
+}
+
+.btn_launch_enabled:active {
   background-color: white;
   color: rgb(0,175,139);
 }
@@ -334,7 +362,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 346px;
+  left: 350px;
   outline: none;
 }
 
@@ -348,7 +376,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 493px;
+  left: 499px;
   outline: none;
 }
 
@@ -362,7 +390,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 643px;
+  left: 649px;
   outline: none;
 }
 
@@ -376,7 +404,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 791px;
+  left: 798px;
   outline: none;
 }
 
@@ -390,7 +418,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 940px;
+  left: 950px;
   outline: none;
 }
 
@@ -404,7 +432,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 1113px;
+  left: 1125px;
   outline: none;
 }
 
@@ -418,7 +446,7 @@ input[type=text] {
   cursor: pointer;
   position: relative;
   top: 600px;
-  left: 1287px;
+  left: 1300px;
   outline: none;
 }
 
@@ -899,7 +927,7 @@ input[type=text] {
   top: 5%;
   left: 5%;
   font size: 15px;
-  color: yellow;
+  color: rgb(0,175,139);
 }
 
 .checkval2 {
@@ -952,7 +980,7 @@ input[type=text] {
 
 .status {
   position: absolute;
-  top: 70%;
+  top: 83%;
   left: 2%;
   font size: 15px;
   color: yellow;
@@ -963,7 +991,7 @@ input[type=text] {
   top: 2%;
   left: 9%;
   font size: 15px;
-  color: yellow;
+  color: white;
 }
 
 .checkres2 {
@@ -1014,22 +1042,124 @@ input[type=text] {
   color: yellow;
 }
 
+.checktest {
+  position: absolute;
+  top: 70%;
+  left: 5%;
+  font-size: 15px;
+  color: white;
+}
+
+.check_igniter {
+  position: absolute;
+  top: 90%;
+  left: 5%;
+  font-size: 15px;
+  font-family: "Courier";
+  border-radius: 6px;
+  border: solid 1px rgb(0,175,139);
+  text-align: center;
+  padding: 10px 10px;
+  color: rgb(0,175,139);
+  background-color: transparent;
+  outline: none;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  transition: .5s ease;
+}
+
+.check_igniter:hover {
+  color: white;
+  background-color: rgb(0,175,139);
+  cursor: pointer;
+}
+
+.check_igniter:active {
+  color: rgb(0,175,139);
+  background-color: white;
+}
+
+.required_launch_values {
+  position: absolute;
+  top: 47%;
+  left: 1.40%;
+  color: rgb(0,175,139);
+  border-radius: 6px;
+  border: solid 2px rgb(0,175,139);
+  max-width: 260px;
+  width: 260px;
+  max-height: 230px;
+  height: 230px;
+  text-align: center;
+  font-family: "Courier";
+  font-size: 14px;
+  padding: 10px 10px;
+}
+
+.required_ox_pres {
+  position: absolute;
+  top: 53%;
+  left: 2.5%;
+  color: rgb(0,175,139);
+  padding: 2px 2px;
+  display: inline-block;
+  font-family: "Courier";
+}
+
+.required_temp1 {
+  position: absolute;
+  top: 60%;
+  left: 2.5%;
+  color: rgb(0,175,139);
+  padding: 2px 2px;
+  display: inline-block;
+  font-family: "Courier";
+}
+
+.required_temp2 {
+  position: absolute;
+  top: 67%;
+  left: 2.5%;
+  color: rgb(0,175,139);
+  padding: 2px 2px;
+  display: inline-block;
+  font-family: "Courier";
+}
+
+.required_mass {
+  position: absolute;
+  top: 74%;
+  left: 2.5%;
+  color: rgb(0,175,139);
+  padding: 2px 2px;
+  display: inline-block;
+  font-family: "Courier";
+}
+
+.readlist {
+  display: none;
+}
+
+.chart {
+  height: 150px;
+  width: 200px;
+  position: relative;
+  top: 5%;
+  left: 80%;
+  z-index: 5;
+}
+
+
 </style>
 </head>
 <body>
-  <script src = "functions.js">
-  </script>
   <button class = "btn_dump" id = "btn_dump">Dump</button>
   <button class = "btn_fill" id = "btn_fill">Fill</button>
-  <button class = "btn_abort" id = "btn_abort" onClick = 'createAbortWindow()'>Abort</button>
-    <script>
-      function createAbortWindow(){
-        window.open("abortWindow.html");
-      }
-    </script>
+  <button class = "btn_abort" id = "btn_abort">Abort</button>
   <button class = "btn_vent" id = "btn_vent">Vent</button>
   <button class ="btn_arm_umbilical" id = "btn_arm_umbilical">Arm Umbilical</button>
   <button class = "btn_disconnect_umbilical" id = "btn_disconnect_umbilical" name="button">Disconnect Umbilical</button>
+  <button class = "check_igniter" id = "check_igniter">Check Ignition</button>
   <div class="user_input">
     <form>
       <div>
@@ -1038,7 +1168,7 @@ input[type=text] {
     </form>
   </div>
   <button class = "btn_submit" id = "btn_submit">Submit Mass</button>
-  <button class = "btn_launch" id = "btn_launch">Arm Igniter</button>
+  <button class = "btn_launch_disabled" id = "btn_launch" disabled>Arm Igniter</button>
   <div class="dropdown">
     <button class = "dropbtn1">Thermo Coupler 1</button>
     <div class="dropdown-content1">
@@ -1114,13 +1244,14 @@ input[type=text] {
     <div class="grid-item item5">Plot 1</div>
     <div class="grid-item item6">Plot 2</div>
   </div>
-  <div class = "read1" id = "read1">1</div>
-  <div class = "read2" id = "read2">2</div>
-  <div class = "read3" id = "read3">3</div>
-  <div class = "read4" id = "read4">4</div>
-  <div class = "read5" id = "read5">5</div>
-  <div class = "read6" id = "read6">6</div>
-  <div class = "read7" id = "read7">7</div>
+  <div id = "chartContainer" style = "height: 300px; width: 30%"></div>
+  <div class = "read1" id = "read1">100</div>
+  <div class = "read2" id = "read2">200</div>
+  <div class = "read3" id = "read3">300</div>
+  <div class = "read4" id = "read4">400</div>
+  <div class = "read5" id = "read5">500</div>
+  <div class = "read6" id = "read6">600</div>
+  <div class = "read7" id = "read7">700</div>
   <p class = "check1" id = "check1">Ox. Tank Mass: </p>
   <p class = "check2" id = "check2">Ox. Tank Pressure: </p>
   <p class = "check3" id = "check3">Liquid Ox. Temp 1: </p>
@@ -1128,7 +1259,7 @@ input[type=text] {
   <p class = "check5" id = "check5">Loaded Mass of Liquid: </p>
   <p class = "check6" id = "check6">Flight Systems Continuity: </p>
   <p class = "check7" id = "check7">Ignition Continuity: </p>
-  <p class = "checkres1" id = "checkres1">Standby</p>
+  <p class = "checkres1" id = "checkres1"></p>
   <p class = "checkres2" id = "checkres2">Standby</p>
   <p class = "checkres3" id = "checkres3">Standby</p>
   <p class = "checkres4" id = "checkres4">Standby</p>
@@ -1143,7 +1274,7 @@ input[type=text] {
   <p class = "checkval6" id = "checkval6">-------</p>
   <p class = "checkval7" id = "checkval7">-------</p>
   <p class = "status" id = "status"></p>
-  <ul>
+  <ol class = "readlist" id = "readlist">
     <li value = "" id = "li1"></li>
     <li value = "" id = "li2"></li>
     <li value = "" id = "li3"></li>
@@ -1151,6 +1282,13 @@ input[type=text] {
     <li value = "" id = "li5"></li>
     <li value = "" id = "li6"></li>
     <li value = "" id = "li7"></li>
-  </ul>
+  </ol>
+  <p class = "required_launch_values">Input Pre-Launch Requirements</p>
+  <p class = "required_ox_pres" id = "required_ox_pres">Ox. Tank Pressure: </p>
+  <p class = "required_temp1" id = "required_temp1">Liquid Temp. 1: </p>
+  <p class = "required_temp2" id = "required_temp2">Liquid Temp. 2: </p>
+  <p class = "required_mass" id = "required_mass">Liquid Mass: </p>
+  <div id="chartContainer" class = "chart" style="height: 300px; width: 30%; "></div>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </body>
 </html>
