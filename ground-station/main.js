@@ -4,6 +4,17 @@ const path = require('path');
 
 const {app, BrowserWindow, Menu, ipcMain} = electron;
 
+var ox_tank_mass = [];
+var ox_temp1 = [];
+var ox_temp2 = [];
+var pre_inj_temp = [];
+var post_inj_temp = [];
+var ox_tank_pres = [];
+var pre_inj_pres = [];
+var comb_chamb_pres = [];
+var flight_cont = false;
+var igniter_cont = false;
+
 // SET ENV
 // process.env.NODE_ENV = 'production';
 
@@ -27,7 +38,7 @@ app.on('ready', function(){
   Menu.setApplicationMenu(mainMenu);
 });
 
-ipcMain.on('main', (event, arg) => {
+ipcMain.on('main', function(e, arg) {
   //create new window
   if (arg == "launch") {
 
@@ -58,10 +69,21 @@ ipcMain.on('main', (event, arg) => {
     //}));
   }
 
-  if (arg == "saved_check") {
-    console.log(arg);
+  if (arg[0] == 'setup'){
+    mainWindow.webContents.send('saved_setup', arg);
   }
 
+  if (arg == "abort_cancelled") {
+    console.log(arg);
+    mainWindow.webContents.send('saved_setup', arg);
+  }
+
+  if (arg == "abort_confirmed") {
+    mainWindow.webContents.send('saved_setup', arg);
+  }
+
+  if (arg[0] == "masstarget")
+    mainWindow.webContents.send('saved_setup', arg);
   });
 
 
