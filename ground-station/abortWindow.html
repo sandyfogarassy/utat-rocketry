@@ -70,13 +70,11 @@
     const {ipcRenderer} = electron;
 
     function cancelAbort() {
-      console.log(123);
       ipcRenderer.send('main', 'abort_cancelled');
       window.open('', '_self', ''); window.close();
     }
 
     function confirmAbort() {
-      console.log(456);
       ipcRenderer.send('main', 'abort_confirmed');
       window.open('', '_self', ''); window.close();
     }
