@@ -4,6 +4,10 @@
   <title>Ground Station</title>
   <script src = "functions.js"></script>
 <style>
+canvas {
+  width: 100%;
+  height: 100%;
+}
 .grid-container {
   display: grid;
   grid-gap: 2px;
@@ -1140,15 +1144,21 @@ input[type=text] {
   display: none;
 }
 
-.chart {
-  height: 150px;
-  width: 200px;
-  position: relative;
-  top: 5%;
-  left: 80%;
-  z-index: 5;
+.chart1 {
+  position: absolute;
+  left: 65.5%;
+  top: 3%;
+  height: 35%;
+  width: 33%;
 }
 
+.chart2 {
+  position: absolute;
+  left: 65.5%;
+  top: 40%;
+  height: 35%;
+  width: 33%;
+}
 
 </style>
 </head>
@@ -1244,7 +1254,8 @@ input[type=text] {
     <div class="grid-item item5">Plot 1</div>
     <div class="grid-item item6">Plot 2</div>
   </div>
-  <div id = "chartContainer" style = "height: 300px; width: 30%"></div>
+  <div id = "chartContainer1" class = "chart1"></div>
+  <div id = "chartContainer2" class = "chart2"></div>
   <div class = "read1" id = "read1">100</div>
   <div class = "read2" id = "read2">200</div>
   <div class = "read3" id = "read3">300</div>
@@ -1288,7 +1299,6 @@ input[type=text] {
   <p class = "required_temp1" id = "required_temp1">Liquid Temp. 1: </p>
   <p class = "required_temp2" id = "required_temp2">Liquid Temp. 2: </p>
   <p class = "required_mass" id = "required_mass">Liquid Mass: </p>
-  <div id="chartContainer" class = "chart" style="height: 300px; width: 30%; "></div>
   <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </body>
 </html>

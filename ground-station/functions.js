@@ -231,6 +231,11 @@ window.onload = function () {
     armIgniter();
   });
 
+  val4 = "Input";
+  val5 = "Input";
+  val6 = "Input";
+  val7 = "Input";
+
   ipcRenderer.on('saved_setup', function (e, arg) {
     if (arg[0] == 'setup') {
       input_params = [];
@@ -239,6 +244,32 @@ window.onload = function () {
         input_conditions.push(arg[i][0]);
         input_params.push(arg[i][1]);
       }
+      for (i=4;i<8;i++) {
+        if (arg[i][1] == "temperature") {
+          arg[i][1] = "Temperature (C)";
+        }
+        if (arg[i][1] == "pressure") {
+          arg[i][1] = "Pressure (PSI)";
+        }
+        if (arg[i][1] == "time") {
+          arg[i][1] = "Time (s)";
+        }
+        if (arg[i][1] == "mass rate") {
+          arg[i][1] = "Mass Rate of Change (kg/s)";
+        }
+        if (arg[i][1] == "mass") {
+          arg[i][1] == "Mass (kg)";
+        }
+      }
+      console.log(arg);
+      val4 = arg[4][1];
+      val5 = arg[5][1];
+      val6 = arg[6][1];
+      val7 = arg[7][1];
+      document.getElementById("topxtitle").innerHTML = val4;
+      document.getElementById("topytitle").innerHTML = val5;
+      document.getElementById("botxtitle").innerHTML = val6;
+      document.getElementById("botytitle").innerHTML = val7;
     }
 
     else if (arg[0] == 'masstarget') {
@@ -263,22 +294,53 @@ window.onload = function () {
 
   //plots
 
-  var chart = new CanvasJS.Chart("chartContainer", {
-  	title :{
-  		text: "Dynamic Data"
-  	},
+  var chart1 = new CanvasJS.Chart("chartContainer1", {
+
+    backgroundColor: null,
   	axisY: {
+      gridThickness: 0,
+      lineColor: "#00AF8B",
+      labelFontColor: "#00AF8B",
+      tickColor: "#00AF8B",
   		includeZero: false
   	},
+    axisX: {
+      lineColor: "#00AF8B",
+      labelFontColor: "#00AF8B",
+      tickColor: "#00AF8B"
+    },
   	data: [{
   		type: "line",
+      color: "#00AF8B",
+  		dataPoints: data_points
+  	}]
+  });
+
+  var chart2 = new CanvasJS.Chart("chartContainer2", {
+
+    backgroundColor: null,
+  	axisY: {
+      gridThickness: 0,
+      lineColor: "#00AF8B",
+      labelFontColor: "#00AF8B",
+      tickColor: "#00AF8B",
+  		includeZero: false
+  	},
+    axisX: {
+      lineColor: "#00AF8B",
+      labelFontColor: "#00AF8B",
+      tickColor: "#00AF8B"
+    },
+  	data: [{
+  		type: "line",
+      color: "#00AF8B",
   		dataPoints: data_points
   	}]
   });
 
   var xVal = 0;
   var yVal = 100;
-  var updateInterval = 1000;
+  var updateInterval = 10000;
   var dataLength = 20; // number of dataPoints visible at any point
 
   var updateChart = function (count) {
@@ -298,7 +360,8 @@ window.onload = function () {
   		data_points.shift();
   	}
 
-  	chart.render();
+  	chart1.render();
+    chart2.render();
   };
 
   updateChart(dataLength);
