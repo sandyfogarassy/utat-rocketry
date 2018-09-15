@@ -9,12 +9,19 @@
     color: rgb(0,175,139);
   }
 
+  .required-plot {
+    position: relative;
+    color: rgb(0,175,139);
+    display: inline-block;
+  }
+
   input {
     outline: none;
     border-radius: 6px;
     border: none;
     padding: 2px 2px;
     background-color: rgb(43,59,62);
+    margin: 5px;
   }
 
   .save_btn {
@@ -37,6 +44,7 @@
     background-color: rgb(0,175,139);
     color: white;
   }
+
 </style>
 </head>
 <body style = "background-color: rgba(24,20,25,1);">
@@ -86,12 +94,26 @@
       val1 = document.getElementById("ox_pres_required_value").value;
       val2 = document.getElementById("ox_temp1_required_value").value;
       val3 = document.getElementById("ox_temp2_required_value").value;
+      val4 = document.getElementById("topplotx").value;
+      if (val4 == "") {
+        val4 = "time";
+      }
+      val5 = document.getElementById("topploty").value;
+      val6 = document.getElementById("bottomplotx").value;
+      if (val6 == "") {
+        val6 = "time";
+      }
+      val7 = document.getElementById("bottomploty").value;
 
       var saved_check = [
         'setup',
         [rotp, val1],
         [rlotp1, val2],
-        [rlotp2, val3]
+        [rlotp2, val3],
+        ["topx", val4],
+        ["topy", val5],
+        ["botx", val6],
+        ["boty", val7]
       ];
 
       ipcRenderer.send('main', saved_check);
@@ -123,7 +145,18 @@
       <input type="radio" name = "c" id = "radio12">Less than <br>
       <input type="text" id = "ox_temp2_required_value">
     </form>
+    <form class="required-plot">
+      Top Plot: <br>
+      <input class = "required-plot" type = "text" name = "d" id = "topplotx">x-axis <br>
+      <input class = "required-plot" type = "text" name = "d" id = "topploty">y-axis
+    </form>
+    <form class="required-plot">
+      Bottom Plot: <br>
+      <input class = "required-plot" type = "text" name = "e" id = "bottomplotx">x-axis <br>
+      <input class = "required-plot" type = "text" name = "e" id = "bottomploty">y-axis
+    </form> <br>
   <button class = "save_btn" type="submit" id = "save_configure" onClick = "saveSetup()">Save</button>
   <p style = "color: rgb(0,175,139);">Seperate 'Between' values with a comma (no spaces)</p>
+  <p style = "color: rgb(0,175,139);">Plot inputs should be lowercase. x-axis default is 'time'.</p>
 </body>
 </html>
