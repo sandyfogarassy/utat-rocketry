@@ -1,12 +1,9 @@
 body {
-	align-items: stretch;
 	border-width: 3px;
 }
 div.sidebar {
 	min-width: 200px;
 	max-width: 300px;
-	border-right-width: 3px;
-	flex: 1;
 }
 div.sidebar p {
 	margin: 0;
@@ -47,34 +44,37 @@ div.sidebar input.coupler::placeholder {
 div.sidebar .button1 {
 	width: 100%;
 }
-div.launch-controls {}
-div.main {
-	flex: 1;
-	display: flex;
-	align-items: stretch;
-	flex-direction: column;
-}
-div.main > div {
-	/*height: 33%;*/
-	border-bottom-width: 3px;
-	display: flex;
-	flex: 1;
-}
-div.main > div:last-child {
-	border-bottom-width: 0px;
-}
-div.main > div > div {
-	align-items: stretch;
-	flex-direction: column;
-	border-right-width: 3px;
-	flex: 1;
-	/*width: 50%;*/
-}
-div.main > div > div:last-child {
-	border-width: 0px;
-}
 div.block_label {
 	font-size: 26px;
 	text-align: center;
-	padding: 10px;
+	margin-bottom: 20px;
+}
+div.launch_controls {
+	flex: 4;
+}
+div.launch_controls .full_height {
+	height: 200px;
+}
+div.launch_controls > .sub_module {
+	float: left;
+	margin-right: 10px;
+}
+div.launch_controls > .sub_module > * {
+	float: left;
+	width: 100%;
+}
+div.launch_controls .button_group_1,div.launch_controls .button_group_2 {
+	width: 200px;
+}
+#fill,#vent {
+	width: 49%;
+}
+#vent {
+	float: right;
+}
+#abort,div.launch_controls .button_group_1 {
+	width: 200px;
+}
+#arm_igniter {
+	height: 100px;
 }
