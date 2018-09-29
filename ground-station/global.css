@@ -1,19 +1,21 @@
 * {
 	box-sizing: border-box;
+	height: 100%;
 }
 body {
 	margin: 0;
-	font-family: Arial;
+	font-family: Helvetica;
 	font-size: 16px;
 	display: flex;
 	min-height: 100%;
 	flex-direction: row;
 	background-color: rgba(24,20,25,1);
 	line-height: 100%;
-	color: white;
+	color: rgb(137, 104, 238);
+	height: 100%;
 }
 div,body {
-	border-color: rgb(0,175,139);
+	border-color: rgb(137, 104, 238);
 	border-style: solid;
 	border-width: 0px;
 }
@@ -25,38 +27,146 @@ button {
 	background: none;
 	border: none;
 	font-size: inherit;
+	outline: none;
+	margin: 2px;
 }
 
-.button1,.button2 {
+button:hover {
+	cursor: pointer;
+}
+
+.btn_check_ignition, .btn_abort, .btn_dump, .btn_vent, .btn_fill, .btn_arm_umbilical, .btn_disconnect_umbilical, .btn_submit, .btn_launch_disabled {
 	transition: 0.2s;
 }
 
-.button1 {
+.btn_check_ignition {
 	padding: 10px;
-	border: 3px solid rgb(0,175,139);
-	border-radius: 4px;
-	text-align: center;
-	vertical-align: center;
+	border: 1px solid rgb(137, 104, 238);
 	background: none;
+	color: rgb(137, 104, 238);
+	width: 90%;
+	height: 85%;
+	margin: 10px;
+}
+.btn_check_ignition:hover {
+	background-color: rgb(137, 104, 238);
 	color: white;
 }
-.button1:hover {
-	background: rgb(0,175,139);
-}
-.button1:active {
+.btn_check_ignition:active {
 	background: white;
 	border-color: white;
+	color: rgb(137, 104, 238);
 }
-.button2 {
+.btn_abort {
 	padding: 10px;
-	border: 3px solid red;
-	border-radius: 4px;
-	text-align: center;
-	vertical-align: center;
+	border: 1px solid red;
 	background: red;
 	color: white;
+	height: 100%;
+	width: 18%;
 }
-.button2:active {
+.btn_abort:active {
 	background: white;
 	border-color: white;
+	color: red;
+}
+
+.btn_dump {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+	height: 30%;
+}
+
+.btn_dump:active {
+	background-color: white;
+	color: rgb(137, 104, 238);
+}
+
+.btn_vent {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+	height: 30%;
+}
+
+.btn_vent:active {
+		background-color: white;
+		color: rgb(137, 104, 238);
+}
+
+.btn_fill {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+	height: 30%;
+}
+
+.btn_fill:active {
+	background-color: white;
+	color: rgb(137, 104, 238);
+}
+
+.btn_arm_umbilical {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+}
+
+.btn_arm_umbilical:active {
+	background-color: white;
+	color: rgb(137, 104, 238);
+}
+
+.btn_disconnect_umbilical {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+}
+
+.btn_disconnect_umbilical:active {
+	background-color: white;
+	color: rgb(137, 104, 238);
+}
+
+.btn_submit {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+}
+
+.btn_submit:active {
+	background-color: white;
+	color: rgb(137, 104, 238);
+}
+
+.btn_launch_disabled {
+	padding: 10px;
+	border: 1px solid rgb(137, 104, 238);
+	background: none;
+	color: rgb(137, 104, 238);
+	opacity: 0.2;
+	cursor: not-allowed;
+	width: 15%;
+}
+
+.btn_launch_disabled:hover {
+	cursor: not-allowed;
+}
+
+.btn_launch_disabled:active {
+	background-color: white;
+	color: rgb(137, 104, 238);
+}
+
+.btn_dump, .btn_abort, .btn_check_ignition, .btn_vent, .btn_fill, .btn_arm_umbilical, .btn_disconnect_umbilical, .btn_submit, .btn_launch_disabled {
+	border-radius: 6px;
+	text-align: center;
+	vertical-align: center;
 }

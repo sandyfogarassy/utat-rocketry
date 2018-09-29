@@ -1,14 +1,17 @@
 body {
 	align-items: stretch;
-	border-width: 3px;
+	border-width: 1px;
+	height: 100%;
 }
 div.sidebar {
 	min-width: 200px;
 	max-width: 300px;
-	border-right-width: 3px;
+	border-right-width: 1px;
 	flex: 1;
+	height: 100%;
 }
 div.sidebar p {
+	max-height: 20px;
 	margin: 0;
 	margin-bottom: 20px;
 }
@@ -16,19 +19,21 @@ div.sidebar p:last-child {
 	margin-bottom: 0px;
 }
 div.sidebar label {
-	display: block;
+	max-height: 20px;
 }
-div.sidebar input[value="Standby"] {color: yellow;}
+div.sidebar input[value="Standby"] {
+	max-height: 20px;
+	color: yellow;
+}
 div.sidebar input[value="Go"] {color: green;}
 div.sidebar input[value="Stop"] {color: red;}
-div.sidebar > div {
-	padding: 20px;
-}
 div.sidebar > div.secondary {
-	border-top-width: 3px;
+	border-top-width: 1px;
+	height: 30%;
 }
 div.sidebar > div.tertiary {
 	padding-top: 0px;
+	height: 40%;
 }
 div.sidebar input {
 	background: none;
@@ -38,6 +43,7 @@ div.sidebar input {
 	padding: 0px;
 }
 div.sidebar input.coupler {
+	max-height: 20px;
 	width: 100%;
 	margin: 5px 0px;
 }
@@ -47,16 +53,16 @@ div.sidebar input.coupler::placeholder {
 div.sidebar .button1 {
 	width: 100%;
 }
-div.launch-controls {}
 div.main {
 	flex: 1;
 	display: flex;
 	align-items: stretch;
 	flex-direction: column;
+	height: 100%;
 }
 div.main > div {
 	/*height: 33%;*/
-	border-bottom-width: 3px;
+	border-bottom-width: 1px;
 	display: flex;
 	flex: 1;
 }
@@ -66,7 +72,7 @@ div.main > div:last-child {
 div.main > div > div {
 	align-items: stretch;
 	flex-direction: column;
-	border-right-width: 3px;
+	border-right-width: 1px;
 	flex: 1;
 	/*width: 50%;*/
 }
@@ -74,7 +80,49 @@ div.main > div > div:last-child {
 	border-width: 0px;
 }
 div.block_label {
-	font-size: 26px;
+	font-size: 16px;
 	text-align: center;
 	padding: 10px;
+}
+
+div.launch-controls {
+	max-height: 150px;
+}
+
+div.check_ignition {
+	width: 100%;
+	text-align: center;
+	align-items: center;
+}
+
+div.user_input {
+	outline: none;
+	background: white;
+	font-family: Helvetica;
+	font-size: 15px;
+	height: 25%;
+	max-width: 50px;
+	border-radius: 6px;
+}
+
+div.shit3 {
+	display: flex;
+	flex-direction: column;
+	max-width: 130px;
+	height: 100%;
+	border: none;
+}
+
+div.umbilical {
+	border: none;
+	display: flex;
+	flex-direction: column;
+	max-width: 150px;
+}
+
+div.submission {
+	display: flex;
+	flex-direction: column;
+	border: none;
+	max-width: 180px;
 }
