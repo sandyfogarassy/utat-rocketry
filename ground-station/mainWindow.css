@@ -1,39 +1,34 @@
 body {
-	align-items: stretch;
 	border-width: 1px;
-	height: 100%;
 }
 div.sidebar {
 	min-width: 200px;
 	max-width: 300px;
-	border-right-width: 1px;
-	flex: 1;
-	height: 100%;
 }
 div.sidebar p {
-	max-height: 20px;
 	margin: 0;
-	margin-bottom: 20px;
+	margin-bottom: 12px;
+	color: inherit;
 }
 div.sidebar p:last-child {
 	margin-bottom: 0px;
 }
+div.sidebar p.heading {
+	text-align: center;
+}
 div.sidebar label {
-	max-height: 20px;
+	display: block;
+	color: inherit;
 }
-div.sidebar input[value="Standby"] {
-	max-height: 20px;
-	color: yellow;
-}
+div.sidebar input[value="Standby"] {color: yellow;}
 div.sidebar input[value="Go"] {color: green;}
 div.sidebar input[value="Stop"] {color: red;}
 div.sidebar > div.secondary {
 	border-top-width: 1px;
-	height: 30%;
+	flex: 1;
 }
 div.sidebar > div.tertiary {
 	padding-top: 0px;
-	height: 40%;
 }
 div.sidebar input {
 	background: none;
@@ -43,7 +38,6 @@ div.sidebar input {
 	padding: 0px;
 }
 div.sidebar input.coupler {
-	max-height: 20px;
 	width: 100%;
 	margin: 5px 0px;
 }
@@ -53,76 +47,46 @@ div.sidebar input.coupler::placeholder {
 div.sidebar .button1 {
 	width: 100%;
 }
-div.main {
-	flex: 1;
-	display: flex;
-	align-items: stretch;
-	flex-direction: column;
-	height: 100%;
-}
-div.main > div {
-	/*height: 33%;*/
-	border-bottom-width: 1px;
-	display: flex;
-	flex: 1;
-}
-div.main > div:last-child {
-	border-bottom-width: 0px;
-}
-div.main > div > div {
-	align-items: stretch;
-	flex-direction: column;
-	border-right-width: 1px;
-	flex: 1;
-	/*width: 50%;*/
-}
-div.main > div > div:last-child {
-	border-width: 0px;
-}
 div.block_label {
-	font-size: 16px;
 	text-align: center;
-	padding: 10px;
+	margin-bottom: 12px;
 }
-
-div.launch-controls {
-	max-height: 150px;
+div.launch_controls {
+	flex: 8;
+	max-height: 160px;
+	justify-content: space-between;
 }
-
-div.check_ignition {
+div.launch_controls .full_height {
+	height: 136px;
+}
+div.launch_controls > .sub_module,div.launch_controls .sub_module.umbilical > * {
+	margin-right: 6px;
+	max-width: 140px;
+}
+div.launch_controls > .sub_module {
+	border-right: none;
+}
+div.launch_controls > .sub_module:last-child {
+	margin-right: 0px;
+}
+div.launch_controls > .sub_module > * {
 	width: 100%;
-	text-align: center;
-	align-items: center;
 }
-
-div.user_input {
-	outline: none;
-	background: white;
-	font-family: Helvetica;
-	font-size: 15px;
-	height: 25%;
-	max-width: 50px;
+div.launch_controls .button_group .button1 {
+	margin-bottom: 6px;
+}
+div.launch_controls input {
+	width: 100%;
+}
+div.launch_controls .sub_module.abort,div.launch_controls .sub_module.mass,div.launch_controls .sub_module.igniter {
+	width: 200px;
+}
+div.launch_controls .sub_module.umbilical {
+	max-width: 300px;
+}
+#btn_check_ignition {
+	margin-top: 12px;
+}
+#mass_target {
 	border-radius: 6px;
-}
-
-div.shit3 {
-	display: flex;
-	flex-direction: column;
-	max-width: 130px;
-	height: 100%;
-	border: none;
-}
-
-div.umbilical {
-	border: none;
-	display: flex;
-	flex-direction: column;
-	max-width: 150px;
-}
-
-div.submission {
-	display: flex;
-	flex-direction: column;
-	border: none;
-	max-width: 180px;
 }

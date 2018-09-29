@@ -1,172 +1,107 @@
 * {
 	box-sizing: border-box;
-	height: 100%;
 }
 body {
 	margin: 0;
-	font-family: Helvetica;
+	font-family: Arial;
 	font-size: 16px;
 	display: flex;
 	min-height: 100%;
-	flex-direction: row;
 	background-color: rgba(24,20,25,1);
 	line-height: 100%;
-	color: rgb(137, 104, 238);
-	height: 100%;
+	color: rgb(137,104,238);
 }
 div,body {
-	border-color: rgb(137, 104, 238);
+	border-color: rgb(137,104,238);
 	border-style: solid;
 	border-width: 0px;
+	flex: 10;
+}
+.container.top_border > div {
+	border-top-width: 1px;
+}
+.container.bottom_border > div,div.flex.container.row > div {
+	border-bottom-width: 1px;
+}
+.container.left_border > div {
+	border-left-width: 1px;
+}
+.container.right_border > div,div.flex.container.column > div {
+	border-right-width: 1px;
+}
+.container > div:last-child {
+	border-width: 0px !important;
+}
+.flex.container {
+	align-items: stretch;
+	display: flex;
+}
+.flex.container.column {
+	flex-direction: row;
+}
+.flex.container.row {
+	flex-direction: column;
+}
+.module {
+	padding: 12px;
 }
 input {
 	margin: 0px;
 	font-size: inherit;
+	outline: none;
 }
 button {
 	background: none;
 	border: none;
 	font-size: inherit;
-	outline: none;
-	margin: 2px;
 }
 
-button:hover {
+.button1,.button2 {
+	transition: 0.2s;
 	cursor: pointer;
 }
-
-.btn_check_ignition, .btn_abort, .btn_dump, .btn_vent, .btn_fill, .btn_arm_umbilical, .btn_disconnect_umbilical, .btn_submit, .btn_launch_disabled {
-	transition: 0.2s;
+.button1,.button2 {
+	margin: 0px;
+	border-radius: 6px;
 }
-
-.btn_check_ignition {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
+.button1 {
+	padding: 6px 12px;
+	line-height: 150%;
+	border: 1px solid rgb(137,104,238);
+	text-align: center;
+	vertical-align: middle;
 	background: none;
-	color: rgb(137, 104, 238);
-	width: 90%;
-	height: 85%;
-	margin: 10px;
+	color: rgb(137,104,238);
 }
-.btn_check_ignition:hover {
-	background-color: rgb(137, 104, 238);
+.button1.disabled {
+	cursor: not-allowed;
+	color: grey;
+	border-color: grey;
+}
+.button1.higher {
+	padding: 25px;
+}
+.button1:hover {
+	background: rgb(137,104,238);
 	color: white;
 }
-.btn_check_ignition:active {
+.button1.disabled:hover {
+	background: none;
+	color: grey;
+}
+.button1:active {
 	background: white;
 	border-color: white;
-	color: rgb(137, 104, 238);
+	color: rgb(137,104,238);
 }
-.btn_abort {
+.button2 {
 	padding: 10px;
-	border: 1px solid red;
+	text-align: center;
+	vertical-align: middle;
 	background: red;
 	color: white;
-	height: 100%;
-	width: 18%;
 }
-.btn_abort:active {
+.button2:active {
 	background: white;
-	border-color: white;
 	color: red;
-}
-
-.btn_dump {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-	height: 30%;
-}
-
-.btn_dump:active {
-	background-color: white;
-	color: rgb(137, 104, 238);
-}
-
-.btn_vent {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-	height: 30%;
-}
-
-.btn_vent:active {
-		background-color: white;
-		color: rgb(137, 104, 238);
-}
-
-.btn_fill {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-	height: 30%;
-}
-
-.btn_fill:active {
-	background-color: white;
-	color: rgb(137, 104, 238);
-}
-
-.btn_arm_umbilical {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-}
-
-.btn_arm_umbilical:active {
-	background-color: white;
-	color: rgb(137, 104, 238);
-}
-
-.btn_disconnect_umbilical {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-}
-
-.btn_disconnect_umbilical:active {
-	background-color: white;
-	color: rgb(137, 104, 238);
-}
-
-.btn_submit {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-}
-
-.btn_submit:active {
-	background-color: white;
-	color: rgb(137, 104, 238);
-}
-
-.btn_launch_disabled {
-	padding: 10px;
-	border: 1px solid rgb(137, 104, 238);
-	background: none;
-	color: rgb(137, 104, 238);
-	opacity: 0.2;
-	cursor: not-allowed;
-	width: 15%;
-}
-
-.btn_launch_disabled:hover {
-	cursor: not-allowed;
-}
-
-.btn_launch_disabled:active {
-	background-color: white;
-	color: rgb(137, 104, 238);
-}
-
-.btn_dump, .btn_abort, .btn_check_ignition, .btn_vent, .btn_fill, .btn_arm_umbilical, .btn_disconnect_umbilical, .btn_submit, .btn_launch_disabled {
-	border-radius: 6px;
-	text-align: center;
-	vertical-align: center;
 }
