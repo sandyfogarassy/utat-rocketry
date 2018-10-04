@@ -11,10 +11,26 @@ var liquid_measured_mass;
 var flight_systems_check = false;
 var igniter_check = false;
 var data_points = [];
+var clicked = "";
+
+function edit_readouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
+  document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
+  document.getElementById(changed_li_id).value = changed_li_val;
+}
 
 window.onload = function () {
 
+
+
+  /*window.onClick = function () {
+
+    //store clicked id for future use
+    //(e.g.): edit_readouts(id, html, list_index_id, changed_list_index)
+
+  }*/
+
   // Mass target submission
+
   document.getElementById("btn_submit").addEventListener('click', function submitMass(e) {
     e.preventDefault();
     var masstarget = [];
@@ -25,28 +41,25 @@ window.onload = function () {
   });
 
   // Changing sensors/transducers
-  document.getElementById("db1_val1").addEventListener('click', function toggle11(e) {
+
+  document.getElementById("db1_val1").addEventListener('click', function (e) {
     e.preventDefault();
-    document.getElementById("dv1").innerHTML = "Ox. Temp 1";
-    document.getElementById("li1").value = "1";
+    edit_readouts("dv1", "Ox. Temp 1", "li1", "1");
   });
 
-  document.getElementById("db1_val2").addEventListener('click', function toggle12(e) {
+  document.getElementById("db1_val2").addEventListener('click', function (e) {
     e.preventDefault();
-    document.getElementById("dv1").innerHTML = "Ox. Temp 2";
-    document.getElementById("li1").value = "2";
+    edit_readouts("dv1", "Ox. Temp 2", "li1", "2");
   });
 
-  document.getElementById("db1_val3").addEventListener('click', function toggle13(e) {
+  document.getElementById("db1_val3").addEventListener('click', function (e) {
     e.preventDefault();
-    document.getElementById("dv1").innerHTML = "Pre-Injector Temp";
-    document.getElementById("li1").value = "3";
+    edit_readouts("dv1", "Pre-Injector Temp", "li1", "3");
   });
 
-  document.getElementById("db1_val4").addEventListener('click', function toggle14(e) {
+  document.getElementById("db1_val4").addEventListener('click', function (e) {
     e.preventDefault();
-    document.getElementById("dv1").innerHTML = "Post-Injector Temp";
-    document.getElementById("li1").value = "4";
+    edit_readouts("dv1", "Post-Injector Temp", "li1", "4");
   });
 
   document.getElementById("db2_val1").addEventListener('click', function toggle21(e) {
