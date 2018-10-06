@@ -11,25 +11,30 @@ var liquid_measured_mass;
 var flight_systems_check = false;
 var igniter_check = false;
 var data_points = [];
-var clicked = "";
+var stored = null;
+var elements = ["db1_val1", "db1_val2", "db1_val3", "db1_val4"];
+
+// Changing sensors/transducers
 
 function edit_readouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
   document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
   document.getElementById(changed_li_id).value = changed_li_val;
 }
 
+function reply_click(clicked_id) {
+  var changed_HTML = "dv" + clicked_id[2];
+  var changed_inner = document.getElementById(clicked_id).innerHTML;
+  var list_index = "li" + clicked_id[2];
+  var list_index_value = clicked_id[7];
+  
+  if (clicked_id[2] > 4) {
+    list_index_value = Number(list_index_value) + 4;
+  }
+  console.log(list_index_value);
+  edit_readouts(changed_HTML, changed_inner, list_index, list_index_value);
+}
+
 window.onload = function () {
-
-
-
-  /*window.onClick = function () {
-
-    //store clicked id for future use
-    //(e.g.): edit_readouts(id, html, list_index_id, changed_list_index)
-
-  }*/
-
-  // Mass target submission
 
   document.getElementById("btn_submit").addEventListener('click', function submitMass(e) {
     e.preventDefault();
@@ -38,154 +43,6 @@ window.onload = function () {
     masstarget.push(document.getElementById('mass_target').value);
     document.getElementById("mass_target").value = "";
     ipcRenderer.send('main', masstarget);
-  });
-
-  // Changing sensors/transducers
-
-  document.getElementById("db1_val1").addEventListener('click', function (e) {
-    e.preventDefault();
-    edit_readouts("dv1", "Ox. Temp 1", "li1", "1");
-  });
-
-  document.getElementById("db1_val2").addEventListener('click', function (e) {
-    e.preventDefault();
-    edit_readouts("dv1", "Ox. Temp 2", "li1", "2");
-  });
-
-  document.getElementById("db1_val3").addEventListener('click', function (e) {
-    e.preventDefault();
-    edit_readouts("dv1", "Pre-Injector Temp", "li1", "3");
-  });
-
-  document.getElementById("db1_val4").addEventListener('click', function (e) {
-    e.preventDefault();
-    edit_readouts("dv1", "Post-Injector Temp", "li1", "4");
-  });
-
-  document.getElementById("db2_val1").addEventListener('click', function toggle21(e) {
-    e.preventDefault();
-    document.getElementById("dv2").innerHTML = "Ox. Temp 1";
-    document.getElementById("li2").value = "1";
-  });
-
-  document.getElementById("db2_val2").addEventListener('click', function toggle22(e) {
-    e.preventDefault();
-    document.getElementById("dv2").innerHTML = "Ox. Temp 2";
-    document.getElementById("li2").value = "2";
-  });
-
-  document.getElementById("db2_val3").addEventListener('click', function toggle23(e) {
-    e.preventDefault();
-    document.getElementById("dv2").innerHTML = "Pre-Injector Temp";
-    document.getElementById("li2").value = "3";
-  });
-
-  document.getElementById("db2_val4").addEventListener('click', function toggle24(e) {
-    e.preventDefault();
-    document.getElementById("dv2").innerHTML = "Post-Injector Temp";
-    document.getElementById("li2").value = "4";
-  });
-
-  document.getElementById("db3_val1").addEventListener('click', function toggle31(e) {
-    e.preventDefault();
-    document.getElementById("dv3").innerHTML = "Ox. Temp 1";
-    document.getElementById("li3").value = "1";
-  });
-
-  document.getElementById("db3_val2").addEventListener('click', function toggle32(e) {
-    e.preventDefault();
-    document.getElementById("dv3").innerHTML = "Ox. Temp 2";
-    document.getElementById("li3").value = "2";
-  });
-
-  document.getElementById("db3_val3").addEventListener('click', function toggle33(e) {
-    e.preventDefault();
-    document.getElementById("dv3").innerHTML = "Pre-Injector Temp";
-    document.getElementById("li3").value = "3";
-  });
-
-  document.getElementById("db3_val4").addEventListener('click', function toggle34(e) {
-    e.preventDefault();
-    document.getElementById("dv3").innerHTML = "Post-Injector Temp";
-    document.getElementById("li3").value = "4";
-  });
-
-  document.getElementById("db4_val1").addEventListener('click', function toggle41(e) {
-    e.preventDefault();
-    document.getElementById("dv4").innerHTML = "Ox. Temp 1";
-    document.getElementById("li4").value = "1";
-  });
-
-  document.getElementById("db4_val2").addEventListener('click', function toggle42(e) {
-    e.preventDefault();
-    document.getElementById("dv4").innerHTML = "Ox. Temp 2";
-    document.getElementById("li4").value = "2";
-  });
-
-  document.getElementById("db4_val3").addEventListener('click', function toggle43(e) {
-    e.preventDefault();
-    document.getElementById("dv4").innerHTML = "Pre-Injector Temp";
-    document.getElementById("li4").value = "3";
-  });
-
-  document.getElementById("db4_val4").addEventListener('click', function toggle44(e) {
-    e.preventDefault();
-    document.getElementById("dv4").innerHTML = "Post-Injector Temp";
-    document.getElementById("li4").value = "4";
-  });
-
-  document.getElementById("db5_val1").addEventListener('click', function toggle51(e) {
-    e.preventDefault();
-    document.getElementById("dv5").innerHTML = "Ox. Tank Pres";
-    document.getElementById("li5").value = "5";
-  });
-
-  document.getElementById("db5_val2").addEventListener('click', function toggle52(e) {
-    e.preventDefault();
-    document.getElementById("dv5").innerHTML = "Pre-Injector Pres";
-    document.getElementById("li5").value = "6";
-  });
-
-  document.getElementById("db5_val3").addEventListener('click', function toggle53(e) {
-    e.preventDefault();
-    document.getElementById("dv5").innerHTML = "Comb. Chamber Pres";
-    document.getElementById("li5").value = "7";
-  });
-
-  document.getElementById("db6_val1").addEventListener('click', function toggle61(e) {
-    e.preventDefault();
-    document.getElementById("dv6").innerHTML = "Ox. Tank Pres";
-    document.getElementById("li6").value = "5";
-  });
-
-  document.getElementById("db6_val2").addEventListener('click', function toggle62(e) {
-    e.preventDefault();
-    document.getElementById("dv6").innerHTML = "Pre-Injector Pres";
-    document.getElementById("li6").value = "6";
-  });
-
-  document.getElementById("db6_val3").addEventListener('click', function toggle63(e) {
-    e.preventDefault();
-    document.getElementById("dv6").innerHTML = "Comb. Chamber Pres";
-    document.getElementById("li6").value = "7";
-  });
-
-  document.getElementById("db7_val1").addEventListener('click', function toggle71(e) {
-    e.preventDefault();
-    document.getElementById("dv7").innerHTML = "Ox. Tank Pres";
-    document.getElementById("li7").value = "5";
-  });
-
-  document.getElementById("db7_val2").addEventListener('click', function toggle72(e) {
-    e.preventDefault();
-    document.getElementById("dv7").innerHTML = "Pre-Injector Pres";
-    document.getElementById("li7").value = "6";
-  });
-
-  document.getElementById("db7_val3").addEventListener('click', function toggle73(e) {
-    e.preventDefault();
-    document.getElementById("dv7").innerHTML = "Comb. Chamber Pres";
-    document.getElementById("li7").value = "7";
   });
 
   // pressing buttons
