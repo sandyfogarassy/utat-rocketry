@@ -15,12 +15,13 @@ var stored = null;
 var elements = ["db1_val1", "db1_val2", "db1_val3", "db1_val4"];
 
 // Changing sensors/transducers
-
+// edits readout values that are displayed in the pre-launch requirements
 function edit_readouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
   document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
   document.getElementById(changed_li_id).value = changed_li_val;
 }
 
+// function that is called from the inline styling mainWindow.html
 function reply_click(clicked_id) {
   var changed_HTML = "dv" + clicked_id[2];
   var changed_inner = document.getElementById(clicked_id).innerHTML;
@@ -30,12 +31,112 @@ function reply_click(clicked_id) {
   if (clicked_id[2] > 4) {
     list_index_value = Number(list_index_value) + 4;
   }
-  console.log(list_index_value);
+
   edit_readouts(changed_HTML, changed_inner, list_index, list_index_value);
 }
 
+// function to edit pre-launch requirements and plotted variables through setup window
+function setup(conditions, params) {
+  var setup_conditions = conditions;
+  var setup_params = params;
+  var j;
+  var count;
+  for (j=0;j<3;j++) {
+    count = j + 2;
+    var checkval = "checkval" + count.toString();
+    var checkres = "checkres" + count.toString();
+    if (setup_conditions[j] == "between") {
+      if (j == 0) {
+        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres: " + setup_params[j][0] + ", " + setup_params[j][1] + " PSI";
+      }
+      if (j == 1) {
+        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1: " + setup_params[j][0] + ", " + setup_params[j][1] + " C";
+      }
+      if (j == 2) {
+        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2: " + setup_params[j][0] + ", " + setup_params[j][1] + " C";
+      }
+      if (((Number(document.getElementById(checkval).innerHTML)) > (Number(setup_params[j][0]))) && ((Number(document.getElementById(checkval).innerHTML)) < (Number(setup_params[j][1])))) {
+        document.getElementById(checkres).innerHTML = "GO";
+        document.getElementById(checkres).style.color = "green";
+        document.getElementById(checkval).style.color = "green";
+      }
+      else {
+        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).style.color = "red";
+        document.getElementById(checkval).style.color = "red";
+      }
+    }
+    if(input_conditions[j] == 'equal') {
+      console.log(checkval);
+      if (j == 0) {
+        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres = " + setup_params[j] + "PSI";
+      }
+      if (j == 1) {
+        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 =  " + setup_params[j] + "C";
+      }
+      if (j == 2) {
+        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 =  " + setup_params[j] + "C";
+      }
+      if ((Number(document.getElementById(checkval).innerHTML)) == (Number(setup_params[j]))) {
+        document.getElementById(checkres).innerHTML = "GO";
+        document.getElementById(checkres).style.color = "green";
+        document.getElementById(checkval).style.color = "green";
+      }
+      else {
+        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).style.color = "red";
+        document.getElementById(checkval).style.color = "red";
+      }
+    }
+    if (setup_conditions[j] == 'greater') {
+      if (j == 0) {
+        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres >  " + setup_params[j] + "PSI";
+      }
+      if (j == 1) {
+        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 >  " + setup_params[j] + "C";
+      }
+      if (j == 2) {
+        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 >  " + setup_params[j] + "C";
+      }
+      if ((Number(document.getElementById(checkval).innerHTML)) > (Number(setup_params[j]))) {
+        document.getElementById(checkres).innerHTML = "GO";
+        document.getElementById(checkres).style.color = "green";
+        document.getElementById(checkval).style.color = "green";
+      }
+      else {
+        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).style.color = "red";
+        document.getElementById(checkval).style.color = "red";
+      }
+    }
+    if (setup_conditions[j] == 'less') {
+      if (j == 0) {
+        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres <  " + setup_params[j] + "PSI";
+      }
+      if (j == 1) {
+        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 <  " + setup_params[j] + "C";
+      }
+      if (j == 2) {
+        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 <  " + setup_params[j]; + "C";
+      }
+      if ((Number(document.getElementById(checkval).innerHTML)) < (Number(setup_params[j]))) {
+        document.getElementById(checkres).innerHTML = "GO";
+        document.getElementById(checkres).style.color = "green";
+        document.getElementById(checkval).style.color = "green";
+      }
+      else {
+        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).style.color = "red";
+        document.getElementById(checkval).style.color = "red";
+      }
+    }
+  }
+}
+
+// when the window loads, loop through this
 window.onload = function () {
 
+  //mass submission button
   document.getElementById("btn_submit").addEventListener('click', function submitMass(e) {
     e.preventDefault();
     var masstarget = [];
@@ -106,6 +207,7 @@ window.onload = function () {
   val6 = "Input";
   val7 = "Input";
 
+  //
   ipcRenderer.on('saved_setup', function (e, arg) {
     if (arg[0] == 'setup') {
       input_params = [];
@@ -136,10 +238,10 @@ window.onload = function () {
       val5 = arg[5][1];
       val6 = arg[6][1];
       val7 = arg[7][1];
-      document.getElementById("topxtitle").innerHTML = val4;
-      document.getElementById("topytitle").innerHTML = val5;
-      document.getElementById("botxtitle").innerHTML = val6;
-      document.getElementById("botytitle").innerHTML = val7;
+      //document.getElementById("topxtitle").innerHTML = val4;
+      //document.getElementById("topytitle").innerHTML = val5;
+      //document.getElementById("botxtitle").innerHTML = val6;
+      //document.getElementById("botytitle").innerHTML = val7;
     }
 
     else if (arg[0] == 'masstarget') {
@@ -285,175 +387,8 @@ function assignValuesToCheck() {
     if (checklist[i][0] == "2") {
       document.getElementById("checkval4").innerHTML = checklist[i][1];
     }
-
   }
-
-  for (j=0;j<3;j++) {
-    if (input_conditions[j] == 'between') {
-      if (j == 0) {
-        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres: " + input_params[j][0] + ", " + input_params[j][1] + " PSI";
-        if (((Number(document.getElementById("checkval2").innerHTML)) > (Number(input_params[j][0]))) && ((Number(document.getElementById("checkval2").innerHTML)) < (Number(input_params[j][1])))) {
-          document.getElementById("checkres2").innerHTML = "GO";
-          document.getElementById("checkres2").style.color = "green";
-          document.getElementById("checkval2").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres2").innerHTML = "STOP";
-          document.getElementById("checkres2").style.color = "red";
-          document.getElementById("checkval2").style.color = "red";
-        }
-      }
-      if (j == 1) {
-        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1: " + input_params[j][0] + ", " + input_params[j][1] + " C"
-        if (((Number(document.getElementById("checkval3").innerHTML)) > (Number(input_params[j][0]))) && ((Number(document.getElementById("checkval3").innerHTML)) < (Number(input_params[j][1])))) {
-          document.getElementById("checkres3").innerHTML = "GO";
-          document.getElementById("checkres3").style.color = "green";
-          document.getElementById("checkval3").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres3").innerHTML = "STOP";
-          document.getElementById("checkres3").style.color = "red";
-          document.getElementById("checkval3").style.color = "red";
-        }
-      }
-      if (j == 2) {
-        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2: " + input_params[j][0] + ", " + input_params[j][1] + " C";
-        if (((Number(document.getElementById("checkval4").innerHTML)) > (Number(input_params[j][0]))) && ((Number(document.getElementById("checkval4").innerHTML)) < (Number(input_params[j][1])))) {
-          document.getElementById("checkres4").innerHTML = "GO";
-          document.getElementById("checkres4").style.color = "green";
-          document.getElementById("checkval4").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres4").innerHTML = "STOP";
-          document.getElementById("checkres4").style.color = "red";
-          document.getElementById("checkval4").style.color = "red";
-        }
-      }
-    }
-    if(input_conditions[j] == 'equal') {
-      if (j == 0) {
-        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres = " + input_params[j] + "PSI";
-        if ((Number(document.getElementById("checkval2").innerHTML)) == (Number(input_params[j]))) {
-          document.getElementById("checkres2").innerHTML = "GO";
-          document.getElementById("checkres2").style.color = "green";
-          document.getElementById("checkval2").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres2").innerHTML = "STOP";
-          document.getElementById("checkres2").style.color = "red";
-          document.getElementById("checkval2").style.color = "red";
-        }
-      }
-      if (j == 1) {
-        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 =  " + input_params[j] + "C";
-        if ((Number(document.getElementById("checkval3").innerHTML)) == (Number(input_params[j]))) {
-          document.getElementById("checkres3").innerHTML = "GO";
-          document.getElementById("checkres3").style.color = "green";
-          document.getElementById("checkval3").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres3").innerHTML = "STOP";
-          document.getElementById("checkres3").style.color = "red";
-          document.getElementById("checkval3").style.color = "red";
-        }
-      }
-      if (j == 2) {
-        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 =  " + input_params[j] + "C";
-        if ((Number(document.getElementById("checkval4").innerHTML)) == (Number(input_params[j]))) {
-          document.getElementById("checkres4").innerHTML = "GO";
-          document.getElementById("checkres4").style.color = "green";
-          document.getElementById("checkval4").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres4").innerHTML = "STOP";
-          document.getElementById("checkres4").style.color = "red";
-          document.getElementById("checkval4").style.color = "red";
-        }
-      }
-    }
-    if(input_conditions[j] == 'greater') {
-      if (j == 0) {
-        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres >  " + input_params[j] + "PSI";
-        if ((Number(document.getElementById("checkval2").innerHTML)) > (Number(input_params[j]))) {
-          document.getElementById("checkres2").innerHTML = "GO";
-          document.getElementById("checkres2").style.color = "green";
-          document.getElementById("checkval2").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres2").innerHTML = "STOP";
-          document.getElementById("checkres2").style.color = "red";
-          document.getElementById("checkval2").style.color = "red";
-        }
-      }
-      if (j == 1) {
-        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 >  " + input_params[j] + "C";
-        if ((Number(document.getElementById("checkval3").innerHTML)) > (Number(input_params[j]))) {
-          document.getElementById("checkres3").innerHTML = "GO";
-          document.getElementById("checkres3").style.color = "green";
-          document.getElementById("checkval3").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres3").innerHTML = "STOP";
-          document.getElementById("checkres3").style.color = "red";
-          document.getElementById("checkval3").style.color = "red";
-        }
-      }
-      if (j == 2) {
-        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 >  " + input_params[j] + "C";
-        if ((Number(document.getElementById("checkval4").innerHTML)) > (Number(input_params[j]))) {
-          document.getElementById("checkres4").innerHTML = "GO";
-          document.getElementById("checkres4").style.color = "green";
-          document.getElementById("checkval4").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres4").innerHTML = "STOP";
-          document.getElementById("checkres4").style.color = "red";
-          document.getElementById("checkval4").style.color = "red";
-        }
-      }
-    }
-    if(input_conditions[j] == 'less') {
-      document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres <  " + input_params[j] + "PSI";
-      if (j == 0) {
-        if ((Number(document.getElementById("checkval2").innerHTML)) < (Number(input_params[j]))) {
-          document.getElementById("checkres2").innerHTML = "GO";
-          document.getElementById("checkres2").style.color = "green";
-          document.getElementById("checkval2").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres2").innerHTML = "STOP";
-          document.getElementById("checkres2").style.color = "red";
-          document.getElementById("checkval2").style.color = "red";
-        }
-      }
-      if (j == 1) {
-        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 <  " + input_params[j] + "C";
-        if ((Number(document.getElementById("checkval3").innerHTML)) < (Number(input_params[j]))) {
-          document.getElementById("checkres3").innerHTML = "GO";
-          document.getElementById("checkres3").style.color = "green";
-          document.getElementById("checkval3").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres3").innerHTML = "STOP";
-          document.getElementById("checkres3").style.color = "red";
-          document.getElementById("checkval3").style.color = "red";
-        }
-      }
-      if (j == 2) {
-        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 <  " + input_params[j]; + "C";
-        if ((Number(document.getElementById("checkval4").innerHTML)) < (Number(input_params[j]))) {
-          document.getElementById("checkres4").innerHTML = "GO";
-          document.getElementById("checkres4").style.color = "green";
-          document.getElementById("checkval4").style.color = "green";
-        }
-        else {
-          document.getElementById("checkres4").innerHTML = "STOP";
-          document.getElementById("checkres4").style.color = "red";
-          document.getElementById("checkval4").style.color = "red";
-        }
-      }
-    }
-  }
+  setup(input_conditions, input_params);
   liquid_measured_mass = 1000;
   if (input_mass != undefined) {
     document.getElementById("checkval5").innerHTML = Number(liquid_measured_mass);
@@ -541,5 +476,3 @@ function armIgniter() {
     document.getElementById("btn_launch").className = "btn_launch_disabled";
   }
 }
-
-  // plots
