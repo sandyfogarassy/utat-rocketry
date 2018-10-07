@@ -1,3 +1,4 @@
+var fs = require("fs");
 const electron = require('electron');
 const {ipcRenderer} = electron;
 var CanvasJS = require('./node_modules/canvasjs/dist/canvasjs.min');
@@ -131,6 +132,46 @@ function setup(conditions, params) {
       }
     }
   }
+}
+
+function avg(contents, length) {
+  var accum = 0;
+  for (var i in contents) {
+    accum = accum + contents[i];
+  }
+  var result = accum/length;
+  return (result);
+}
+
+function assigning_readouts() {
+
+  //read from JSON file
+  var contents = fs.readFileSync("./DAQ/test.json");
+  var jsonContents = JSON.parse(contents);
+  var daqContents = jsonContents.DAQ;
+  var arduinoContents = jsonContents.Arduino; 
+
+  var pt1 = avg(daqContents.PT1, daqContents.PT1.length);
+  document.getElementById("read5").innerHTML = pt1;
+
+  var pt2 = avg(daqContents.PT2, daqContents.PT3.length);
+  document.getElementById("read6").innerHTML = pt2;
+
+  var pt3 = avg(daqContents.PT3, daqContents.PT3.length);
+  document.getElementById("read7").innerHTML = pt3;
+  
+  var thermo1 = avg(arduinoContents.Thermocouple1, arduinoContents.Thermocouple1.length);
+  document.getElementById("read1").innerHTML = thermo1;
+
+  var thermo2 = avg(arduinoContents.Thermocouple2, arduinoContents.Thermocouple2.length);
+  document.getElementById("read2").innerHTML = thermo2;
+
+  var thermo3 = avg(arduinoContents.Thermocouple3, arduinoContents.Thermocouple3.length);
+  document.getElementById("read3").innerHTML = thermo3;
+
+  var thermo4 = avg(arduinoContents.Thermocouple4, arduinoContents.Thermocouple4.length);
+  document.getElementById("read4").innerHTML = thermo4;
+
 }
 
 // when the window loads, loop through this
@@ -366,6 +407,8 @@ function assignValuesToCheck() {
   li5 = document.getElementById("li5").value;
   li6 = document.getElementById("li6").value;
   li7 = document.getElementById("li7").value;
+
+  assigning_readouts();
 
   read1 = document.getElementById("read1").innerHTML;
   read2 = document.getElementById("read2").innerHTML;
