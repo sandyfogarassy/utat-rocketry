@@ -54,6 +54,7 @@ button {
 	background: none;
 	border: none;
 	font-size: inherit;
+	outline: none;
 }
 
 .button1,.button2 {
