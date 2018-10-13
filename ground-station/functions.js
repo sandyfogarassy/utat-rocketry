@@ -1,4 +1,4 @@
-var fs = require("fs");
+var fs = require("fs"); 
 const electron = require('electron');
 const {ipcRenderer} = electron;
 var CanvasJS = require('./node_modules/canvasjs/dist/canvasjs.min');
@@ -12,12 +12,10 @@ var liquid_measured_mass;
 var flight_systems_check = false;
 var igniter_check = false;
 var data_points = [];
-var stored = null;
-var elements = ["db1_val1", "db1_val2", "db1_val3", "db1_val4"];
 
 // Changing sensors/transducers
 // edits readout values that are displayed in the pre-launch requirements
-function edit_readouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
+function editReadouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
   document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
   document.getElementById(changed_li_id).value = changed_li_val;
 }
@@ -33,7 +31,7 @@ function reply_click(clicked_id) {
     list_index_value = Number(list_index_value) + 4;
   }
 
-  edit_readouts(changed_HTML, changed_inner, list_index, list_index_value);
+  editReadouts(changed_HTML, changed_inner, list_index, list_index_value);
 }
 
 // function to edit pre-launch requirements and plotted variables through setup window
@@ -143,34 +141,36 @@ function avg(contents, length) {
   return (result);
 }
 
-function assigning_readouts() {
+function assigningReadouts(timestamp) {
 
   //read from JSON file
-  var contents = fs.readFileSync("./DAQ/test.json");
+  var readFile = "./DAQ/test" + timestamp +".json";
+  var contents = fs.readFileSync(readFile);
   var jsonContents = JSON.parse(contents);
   var daqContents = jsonContents.DAQ;
   var arduinoContents = jsonContents.Arduino; 
 
+  //assigning individual readout values to sensor/transducer
   var pt1 = avg(daqContents.PT1, daqContents.PT1.length);
-  document.getElementById("read5").innerHTML = pt1;
+  document.getElementById("read5").innerHTML = pt1.toFixed(5);
 
   var pt2 = avg(daqContents.PT2, daqContents.PT3.length);
-  document.getElementById("read6").innerHTML = pt2;
+  document.getElementById("read6").innerHTML = pt2.toFixed(5);
 
   var pt3 = avg(daqContents.PT3, daqContents.PT3.length);
-  document.getElementById("read7").innerHTML = pt3;
+  document.getElementById("read7").innerHTML = pt3.toFixed(5);
   
   var thermo1 = avg(arduinoContents.Thermocouple1, arduinoContents.Thermocouple1.length);
-  document.getElementById("read1").innerHTML = thermo1;
+  document.getElementById("read1").innerHTML = thermo1.toFixed(5);
 
   var thermo2 = avg(arduinoContents.Thermocouple2, arduinoContents.Thermocouple2.length);
-  document.getElementById("read2").innerHTML = thermo2;
+  document.getElementById("read2").innerHTML = thermo2.toFixed(5);
 
   var thermo3 = avg(arduinoContents.Thermocouple3, arduinoContents.Thermocouple3.length);
-  document.getElementById("read3").innerHTML = thermo3;
+  document.getElementById("read3").innerHTML = thermo3.toFixed(5);
 
   var thermo4 = avg(arduinoContents.Thermocouple4, arduinoContents.Thermocouple4.length);
-  document.getElementById("read4").innerHTML = thermo4;
+  document.getElementById("read4").innerHTML = thermo4.toFixed(5);
 
 }
 
@@ -301,8 +301,10 @@ window.onload = function () {
     }
   });
 
-  function reload() {
+  function reload(n) {
     assignValuesToCheck();
+    assigningReadouts(n);
+    console.log(n);
   }
 
   //plots
@@ -375,12 +377,21 @@ window.onload = function () {
 
   	chart1.render();
     chart2.render();
+
   };
 
   updateChart(dataLength);
   setInterval(function(){updateChart()}, updateInterval);
 
-  var myVar = setInterval(reload, 1000);
+  //reloading the readout values based on the timestamped JSON files
+  //var n represents the timestamp
+  var n = 1;
+  setInterval(function () {
+    if (n > 3) {n = 3;}
+    reload(n);
+    n++;}, 
+    1000
+    );
 
 }
 
@@ -388,7 +399,6 @@ function assignValuesToCheck() {
 
   var checklist = [];
   var i;
-  var j;
   var n;
 
   for (n=0;n<3;n++) {
@@ -407,8 +417,6 @@ function assignValuesToCheck() {
   li5 = document.getElementById("li5").value;
   li6 = document.getElementById("li6").value;
   li7 = document.getElementById("li7").value;
-
-  assigning_readouts();
 
   read1 = document.getElementById("read1").innerHTML;
   read2 = document.getElementById("read2").innerHTML;
