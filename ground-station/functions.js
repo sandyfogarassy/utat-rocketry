@@ -1,6 +1,6 @@
 const electron = require('electron');
 const {ipcRenderer} = electron;
-var CanvasJS = require('./node_modules/canvasjs/dist/canvasjs.min');
+var CanvasJS = require('./canvasjs.min.js');
 
 var data_points = [];
 var input_conditions = [];
@@ -13,9 +13,9 @@ var igniter_check = false;
 var data_points = [];
 
 window.onload = function () {
-
+/*
   // Mass target submission
-  document.getElementById("btn_submit").addEventListener('click', function submitMass(e) {
+  document.getElementById("btn_submit_mass").addEventListener('click', function submitMass(e) {
     e.preventDefault();
     var masstarget = [];
     masstarget.push('masstarget');
@@ -293,7 +293,7 @@ window.onload = function () {
   }
 
   //plots
-
+*/
   var chart1 = new CanvasJS.Chart("chartContainer1", {
 
     backgroundColor: null,
@@ -340,7 +340,7 @@ window.onload = function () {
 
   var xVal = 0;
   var yVal = 100;
-  var updateInterval = 10000;
+  var updateInterval = 1000;
   var dataLength = 20; // number of dataPoints visible at any point
 
   var updateChart = function (count) {

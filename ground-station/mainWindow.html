@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<title>Ground Station</title>
+		<script src="functions.js"></script>
 		<link rel="stylesheet" type="text/css" href="global.css">
 		<link rel="stylesheet" type="text/css" href="mainWindow.css">
 	</head>
@@ -58,8 +59,9 @@
 				<div class="fill_system module">
 					<div class="block_label">Fill System</div>
 				</div>
-				<div class="plots module">
-						<div class="block_label">Plots</div>
+				<div class="plots module flex container row">
+						<div id="chartContainer1" class="chart1" style="width:100%;height:200px;"></div>
+						<div id="chartContainer2" class="chart2" style="width:100%;height:200px;"></div>
 				</div>
 			</div>
 
@@ -86,5 +88,6 @@
 				</div>
 			</div>
 		</div>
+		<script src="canvasjs.min.js"></script>
 	</body>
 </html>
