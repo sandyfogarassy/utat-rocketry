@@ -20,21 +20,25 @@ div,body {
 .container.top_border > div {
 	border-top-width: 1px;
 }
-.container.bottom_border > div,div.flex.container.row > div {
+.container.bottom_border > div,.flex.container.row.default_border > div {
 	border-bottom-width: 1px;
 }
 .container.left_border > div {
 	border-left-width: 1px;
 }
-.container.right_border > div,div.flex.container.column > div {
+.container.right_border > div,.flex.container.column.default_border > div {
 	border-right-width: 1px;
 }
-.container > div:last-child {
+.container.default_border > div:last-child {
 	border-width: 0px !important;
 }
 .flex.container {
 	align-items: stretch;
 	display: flex;
+}
+.flex.container.centered_items {
+	align-items: center;
+	justify-content: center;
 }
 .flex.container.column {
 	flex-direction: row;
