@@ -24,52 +24,52 @@ void write_to_JSON() {
 	Json::Value pt3(Json::arrayValue);
 
 	//testing output of vectors
-    tc1.append(Json::Value(52));
-    tc1.append(Json::Value(55));
     tc1.append(Json::Value(50));
-	tc1.append(Json::Value(51));
-    tc1.append(Json::Value(51));
-    tc1.append(Json::Value(50));
+    tc1.append(Json::Value(41));
+    tc1.append(Json::Value(44));
+	tc1.append(Json::Value(52));
+    tc1.append(Json::Value(41));
+    tc1.append(Json::Value(42));
 
-	tc2.append(Json::Value(49));
-    tc2.append(Json::Value(50));
-    tc2.append(Json::Value(49));
-	tc2.append(Json::Value(49));
-    tc2.append(Json::Value(49));
-    tc2.append(Json::Value(49));
+	tc2.append(Json::Value(50));
+    tc2.append(Json::Value(43));
+    tc2.append(Json::Value(44));
+	tc2.append(Json::Value(44));
+    tc2.append(Json::Value(52));
+    tc2.append(Json::Value(52));
 
 	tc3.append(Json::Value(48));
+    tc3.append(Json::Value(49));
     tc3.append(Json::Value(50));
-    tc3.append(Json::Value(51));
-	tc3.append(Json::Value(51));
-    tc3.append(Json::Value(51));
-    tc3.append(Json::Value(50));
+	tc3.append(Json::Value(50));
+    tc3.append(Json::Value(49));
+    tc3.append(Json::Value(49));
 
-	tc4.append(Json::Value(52));
-    tc4.append(Json::Value(50));
-    tc4.append(Json::Value(51));
-	tc4.append(Json::Value(51));
-    tc4.append(Json::Value(51));
-    tc4.append(Json::Value(50));
+	tc4.append(Json::Value(60));
+    tc4.append(Json::Value(60));
+    tc4.append(Json::Value(61));
+	tc4.append(Json::Value(60));
+    tc4.append(Json::Value(64));
+    tc4.append(Json::Value(64));
 
-	pt1.append(Json::Value(600));
-    pt1.append(Json::Value(611));
-    pt1.append(Json::Value(602));
 	pt1.append(Json::Value(604));
     pt1.append(Json::Value(605));
     pt1.append(Json::Value(606));
+	pt1.append(Json::Value(599));
+    pt1.append(Json::Value(606));
+    pt1.append(Json::Value(606));
 
 	pt2.append(Json::Value(600));
-    pt2.append(Json::Value(609));
     pt2.append(Json::Value(600));
+    pt2.append(Json::Value(604));
 	pt2.append(Json::Value(602));
     pt2.append(Json::Value(603));
     pt2.append(Json::Value(601));
 
-	pt3.append(Json::Value(599));
-    pt3.append(Json::Value(602));
-    pt3.append(Json::Value(602));
-	pt3.append(Json::Value(604));
+	pt3.append(Json::Value(600));
+    pt3.append(Json::Value(601));
+    pt3.append(Json::Value(601));
+	pt3.append(Json::Value(603));
     pt3.append(Json::Value(605));
     pt3.append(Json::Value(601));
 
@@ -86,10 +86,25 @@ void write_to_JSON() {
 
     std::cout << "SUCCESS" << std::endl;
 
-	std::ofstream ofs ("test.json", std::ofstream::app);
+	std::ofstream ofs ("test3.json", std::ofstream::app);
     ofs << data << std::flush;
 
 }
+
+/*int time_stamp () {
+
+    
+
+}
+
+void file_generator() {
+
+    int timestamp = time_stamp();
+    std::ofstream newfile ();
+    newfile << timestamp << std::endl;
+    newfile.close();
+
+}*/
 
 int main() {
 
