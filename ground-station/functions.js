@@ -527,3 +527,4 @@ function armIgniter() {
     document.getElementById("btn_launch").className = "btn_launch_disabled";
   }
 }
+
