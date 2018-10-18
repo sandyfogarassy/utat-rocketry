@@ -10,7 +10,7 @@
 #include <C:\Users\sandy\OneDrive\Desktop\utat-rocketry\ground-station\DAQ\jsoncpp\dist\json\json-forwards.h>
 
 class Daq {
-	Parent class for the entire program
+	//Parent class for the entire program
 	public: 
 
         void save_file();
