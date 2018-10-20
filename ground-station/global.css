@@ -14,7 +14,9 @@ div,body {
 	border-color: rgb(137,104,238);
 	border-style: solid;
 	border-width: 0px;
-	flex: 10;
+}
+form {
+	margin: 0px;
 }
 .container.top_border > div {
 	border-top-width: 1px;
