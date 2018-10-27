@@ -1,0 +1,142 @@
+* {
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	font-family: Arial;
+	font-size: 16px;
+	min-height: 100%;
+	background-color: rgba(24,20,25,1);
+	line-height: 100%;
+	color: rgb(137,104,238);
+}
+div,body {
+	border-color: rgb(137,104,238);
+	border-style: solid;
+	border-width: 0px;
+	flex: 10;
+}
+.container.top_border > div {
+	border-top-width: 1px;
+}
+.container.bottom_border > div,.flex.container.row.default_border > div {
+	border-bottom-width: 1px;
+}
+.container.left_border > div {
+	border-left-width: 1px;
+}
+.container.right_border > div,.flex.container.column.default_border > div {
+	border-right-width: 1px;
+}
+.container.default_border > div:last-child {
+	border-width: 0px !important;
+}
+.flex.container {
+	align-items: stretch;
+	display: flex;
+}
+.flex.container.centered_items {
+	align-items: center;
+	justify-content: center;
+}
+.flex.container.column {
+	flex-direction: row;
+}
+.flex.container.row {
+	flex-direction: column;
+}
+.module {
+	padding: 12px;
+}
+input {
+	margin: 0px;
+	font-size: inherit;
+	outline: none;
+}
+button {
+	background: none;
+	border: none;
+	font-size: inherit;
+	outline: none;
+}
+
+.button1,.button2 {
+	transition: 0.2s;
+	cursor: pointer;
+}
+.button1,.button2 {
+	margin: 0px;
+	border-radius: 6px;
+}
+.button1 {
+	padding: 6px 12px;
+	line-height: 150%;
+	border: 1px solid rgb(137,104,238);
+	text-align: center;
+	vertical-align: middle;
+	background: none;
+	color: rgb(137,104,238);
+}
+.button1.disabled {
+	cursor: not-allowed;
+	color: grey;
+	border-color: grey;
+}
+.button1.higher {
+	padding: 25px;
+}
+.button1:hover {
+	background: rgb(137,104,238);
+	color: white;
+}
+.button1.disabled:hover {
+	background: none;
+	color: grey;
+}
+.button1:active {
+	background: white;
+	border-color: white;
+	color: rgb(137,104,238);
+}
+.button2 {
+	padding: 10px;
+	text-align: center;
+	vertical-align: middle;
+	background: red;
+	color: white;
+}
+.button2:active {
+	background: white;
+	color: red;
+}
+.dropbtn1, .dropbtn2, .dropbtn3, .dropbtn4, .dropbtn5, .dropbtn6, .dropbtn7 {
+	cursor: pointer;
+	color: inherit;
+	padding: 6px;
+}
+.dropdown {
+	/*Overall dropdown class*/
+	position: relative;
+	display: inline-block;
+	margin: 4px;
+	background-image: linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%);
+    background-image: -webkit-linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%) 
+}
+.dropdown-content {
+	/*the container for the options of the dropdown menu*/
+	display: none;
+	position: absolute;
+	cursor: pointer;
+}
+.dropdown-content option {
+	display: block;
+	padding: 6px;
+}
+.dropdown-content option:active {
+	text-decoration: underline;
+	color: white;
+}
+.dropdown:hover .dropdown-content {
+	/*Displays the dropdown-content when the dropdown class is hovered over*/
+	display: block;
+}
