@@ -16,8 +16,15 @@ var data_points = [];
 // Changing sensors/transducers
 // edits readout values that are displayed in the pre-launch requirements
 function editReadouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
-  document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
-  document.getElementById(changed_li_id).value = changed_li_val;
+  //document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
+  //document.getElementById(changed_li_id).value = changed_li_val;
+  var dropButton = "dropbtn" + changed_HTML_id[2];
+  if (changed_HTML_id[2] < 5) {
+    document.getElementById(dropButton).innerHTML = "TC" + changed_HTML_id[2] + ": " + changed_HTML_inner;
+  }
+  else {
+    document.getElementById(dropButton).innerHTML = "PT" + Number(changed_HTML_id[2] - 4) + ": " + changed_HTML_inner;
+  }
 }
 
 // function that is called from the inline styling mainWindow.html
@@ -30,8 +37,9 @@ function reply_click(clicked_id) {
   if (clicked_id[2] > 4) {
     list_index_value = Number(list_index_value) + 4;
   }
-
-  editReadouts(changed_HTML, changed_inner, list_index, list_index_value);
+  if (changed_HTML != null && changed_inner != null && list_index != null && list_index_value != null) {
+    editReadouts(changed_HTML, changed_inner, list_index, list_index_value);
+  }
 }
 
 // function to edit pre-launch requirements and plotted variables through setup window
@@ -174,11 +182,15 @@ function assigningReadouts(timestamp) {
 
 }
 
+function dragElement() {
+  document.getElementById("draggable").style.cursor = "move";
+}
+
 // when the window loads, loop through this
 window.onload = function () {
 
   //mass submission button
-  document.getElementById("btn_submit").addEventListener('click', function submitMass(e) {
+  document.getElementById("btn_submit_mass").addEventListener('click', function submitMass(e) {
     e.preventDefault();
     var masstarget = [];
     masstarget.push('masstarget');
@@ -207,16 +219,16 @@ window.onload = function () {
     document.getElementById("status").style.color = "yellow";
   });
 
-  document.getElementById("btn_launch").addEventListener('click', function statusLaunch(e) {
+  document.getElementById("btn_arm_igniter").addEventListener('click', function statusLaunch(e) {
     e.preventDefault();
     document.getElementById("status").innerHTML = "Arming Igniter...";
     document.getElementById("status").style.color = "yellow";
   });
 
-  document.getElementById("btn_abort").addEventListener('click', function statusAbort(e) {
+  document.getElementById("abort").addEventListener('click', function statusAbort(e) {
     e.preventDefault();
-    document.getElementById("status").innerHTML = "Aborting...";
-    document.getElementById("status").style.color = "yellow";
+    //document.getElementById("status").innerHTML = "Aborting...";
+    //document.getElementById("status").style.color = "yellow";
     window.open("abortWindow.html");
   });
 
@@ -232,14 +244,14 @@ window.onload = function () {
     document.getElementById("status").style.color = "yellow";
   });
 
-  document.getElementById("btn_submit").addEventListener('click', function statusSubmit(e) {
+  document.getElementById("btn_submit_mass").addEventListener('click', function statusSubmit(e) {
     e.preventDefault();
     document.getElementById("status").innerHTML = "Submitting Target Mass...";
     document.getElementById("status").style.color = "yellow";
     functionDelay();
   });
 
-  document.getElementById("check_igniter").addEventListener('click', function() {
+  document.getElementById("btn_check_ignition").addEventListener('click', function() {
     armIgniter();
   });
 
@@ -314,19 +326,19 @@ window.onload = function () {
     backgroundColor: null,
   	axisY: {
       gridThickness: 0,
-      lineColor: "#00AF8B",
-      labelFontColor: "#00AF8B",
-      tickColor: "#00AF8B",
+      lineColor: "#8968EE",
+      labelFontColor: "#8968EE",
+      tickColor: "#8968EE",
   		includeZero: false
   	},
     axisX: {
-      lineColor: "#00AF8B",
-      labelFontColor: "#00AF8B",
-      tickColor: "#00AF8B"
+      lineColor: "#8968EE",
+      labelFontColor: "#8968EE",
+      tickColor: "#8968EE"
     },
   	data: [{
   		type: "line",
-      color: "#00AF8B",
+      color: "#8968EE",
   		dataPoints: data_points
   	}]
   });
@@ -336,19 +348,19 @@ window.onload = function () {
     backgroundColor: null,
   	axisY: {
       gridThickness: 0,
-      lineColor: "#00AF8B",
-      labelFontColor: "#00AF8B",
-      tickColor: "#00AF8B",
+      lineColor: "#8968EE",
+      labelFontColor: "#8968EE",
+      tickColor: "#8968EE",
   		includeZero: false
   	},
     axisX: {
-      lineColor: "#00AF8B",
-      labelFontColor: "#00AF8B",
-      tickColor: "#00AF8B"
+      lineColor: "#8968EE",
+      labelFontColor: "#8968EE",
+      tickColor: "#8968EE"
     },
   	data: [{
   		type: "line",
-      color: "#00AF8B",
+      color: "#8968EE",
   		dataPoints: data_points
   	}]
   });
