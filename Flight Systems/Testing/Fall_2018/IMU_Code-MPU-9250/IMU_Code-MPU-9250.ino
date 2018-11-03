@@ -2,6 +2,9 @@
  * Code aiming to move away from libraries for use with MPU 9250
  * Note: MPU 9250 contains a seperate magnetometer (AK8963) that can either be accessed by bypassing mpu 9250 or
  * using the mpu 9250 in master mode for the magnetometer
+ * 
+ * The IMU gives accelerometer, gyro, and magnetometer readings.
+ * There is also some other crap that you can do with the IMU, but that stuff is pretty advanced and looking at previous avionics code, we won't be needing it right now.
  */
 #include <Wire.h>
 
