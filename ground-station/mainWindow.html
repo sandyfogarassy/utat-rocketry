@@ -9,47 +9,48 @@
 		<div class="flex container row sidebar default_border">
 			<div class="primary module">
 				<label>Ox. Tank Mass:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres1">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval1">
 				<label>Ox. Tank Pressure:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres2">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval2">
 				<label>Liquid Ox. Temp 1:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres3">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval3">
 				<label>Liquid Ox. Temp 2:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres4">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval4">
 				<label>Loaded Mass of Liquid:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres5">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval5">
 				<label>Flight Systems Continuity:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres6">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval6">
 				<label>Ignition Continuity:
-					<input type="text" readonly value="Standby">
+					<input type="text" readonly value="Standby" id = "checkres7">
 				</label>
-				<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+				<input class="coupler" type="text" readonly placeholder="Missing Value" value="" id = "checkval7">
+				<p id = "status"></p>
 			</div>
 			<div class="secondary module">
 				<p class="heading">Pre-Launch Requirements</p>
 				<label>Ox. Tank Pressure:
-					<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+					<input id = "required_ox_pres" class="coupler" type="text" readonly placeholder="Missing Value" value="">
 				</label>
 				<label>Liquid Temp. 1:
-					<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+					<input id = "required_temp1" class="coupler" type="text" readonly placeholder="Missing Value" value="">
 				</label>
 				<label>Liquid Temp. 2:
-					<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+					<input id = "required_temp2" class="coupler" type="text" readonly placeholder="Missing Value" value="">
 				</label>
 				<label>Liquid Mass:
-					<input class="coupler" type="text" readonly placeholder="Missing Value" value="">
+					<input id = "required_mass" class="coupler" type="text" readonly placeholder="Missing Value" value="">
 				</label>
 				<button class="button1 higher" id="btn_check_ignition">Check Ignition</button>
 			</div>
@@ -62,6 +63,7 @@
 					<div class = "readouts">
 						<div class = "dropdown">
 							<button class = "dropbtn1" id = "dropbtn1">Thermocouple 1</button>
+							<div class = "read_value" id = "read_value1" value = 50>50K</div>
 							<div class = "dropdown-content">
 								<option id = "db1_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
 								<option id = "db1_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
@@ -71,6 +73,7 @@
 						</div>
 						<div class = "dropdown">
 							<button class = "dropbtn2" id = "dropbtn2">Thermocouple 2</button>
+							<div class = "read_value" id = "read_value2" value = 500>500K</div>
 							<div class = "dropdown-content">
 								<option id = "db2_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
 								<option id = "db2_val1" onClick="reply_click(this.id)">Ox. Temp 2</option>
@@ -80,6 +83,7 @@
 						</div>
 						<div class = "dropdown">
 							<button class = "dropbtn3" id = "dropbtn3">Thermocouple 3</button>
+							<div class = "read_value" id = "read_value3" value = 400>400K</div>
 							<div class = "dropdown-content">
 								<option id = "db3_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
 								<option id = "db3_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
@@ -89,6 +93,7 @@
 						</div>
 						<div class = "dropdown">
 							<button class = "dropbtn4" id = "dropbtn4">Thermocouple 4</button>
+							<div class = "read_value" id = "read_value4" value = 300>300K</div>
 							<div class = "dropdown-content">
 								<option id = "db4_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
 								<option id = "db4_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
@@ -98,6 +103,7 @@
 						</div>
 						<div class = "dropdown" onmouseover = "dragElement()">
 							<button class = "dropbtn5" id = "dropbtn5">Pressure Transducer 1</button>
+							<div class = "read_value" id = "read_value5" value = 600>600PSI</div>
 							<div class = "dropdown-content">
 								<option id = "db5_val1" onClick="reply_click(this.id)">Ox. Press</option>
 								<option id = "db5_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
@@ -106,6 +112,7 @@
 						</div>
 						<div class = "dropdown">
 							<button class = "dropbtn6" id = "dropbtn6">Pressure Transducer 2</button>
+							<div class = "read_value" id = "read_value6" value = 700>700PSI</div>
 							<div class = "dropdown-content">
 								<option id = "db6_val1" onClick="reply_click(this.id)">Ox. Press</option>
 								<option id = "db6_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
@@ -114,12 +121,26 @@
 						</div>
 						<div class = "dropdown">
 							<button class = "dropbtn7" id = "dropbtn7">Pressure Transducer 3</button>
+							<div class = "read_value" id = "read_value7" value = 800>800PSI</div>
 							<div class = "dropdown-content">
 								<option id = "db7_val1" onClick="reply_click(this.id)">Ox. Press</option>
 								<option id = "db7_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
 								<option id = "db7_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
 							</div>
 						</div>
+						<div class = "dropdown">
+							<button class = "mass_readout-btn" id = "mass_readout-btn">Liquid Mass</button>
+							<div class = "read_value" id = "mass_read_value">50kg</div>
+						</div>
+						<ol>
+							<li id = "li1" value = ""></li>
+							<li id = "li2" value = ""></li>
+							<li id = "li3" value = ""></li>
+							<li id = "li4" value = ""></li>
+							<li id = "li5" value = ""></li>
+							<li id = "li6" value = ""></li>
+							<li id = "li7" value = ""></li>
+						</ol>
 					</div>
 					</div>
 				</div>

@@ -113,6 +113,7 @@ button {
 	cursor: pointer;
 	color: inherit;
 	padding: 6px;
+	font-size: 10px;
 }
 .dropdown {
 	/*Overall dropdown class*/
@@ -120,17 +121,18 @@ button {
 	display: inline-block;
 	margin: 4px;
 	background-image: linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%);
-    background-image: -webkit-linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%) 
+    background-image: -webkit-linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%); 
 }
 .dropdown-content {
 	/*the container for the options of the dropdown menu*/
 	display: none;
 	position: absolute;
 	cursor: pointer;
+	font-size: 10px;
 }
 .dropdown-content option {
 	display: block;
-	padding: 6px;
+	padding: 2px;
 }
 .dropdown-content option:active {
 	text-decoration: underline;
@@ -139,4 +141,22 @@ button {
 .dropdown:hover .dropdown-content {
 	/*Displays the dropdown-content when the dropdown class is hovered over*/
 	display: block;
+}
+.mass_readout-btn {
+	cursor: move;
+	color: inherit;
+	padding: 6px;
+	font-size: 10px;
+}
+.read_value{
+	position: relative;
+	display: inline-block;
+	font-size: 10px;
+	padding: 6px;
+	background-image: linear-gradient(bottom, rgb(137,104,238), rgb(137,104,238) 8%, transparent 8%, transparent 100%);
+	background-image: -webkit-linear-gradient(bottom, rgb(137,104,238), rgb(137,104,238) 8%, transparent 8%, transparent 100%);
+	max-width: 100px;
+}
+ol {
+	list-style-type: none;
 }
