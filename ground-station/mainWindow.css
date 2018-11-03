@@ -1,0 +1,106 @@
+body {
+	border-width: 1px;
+}
+div.sidebar {
+	min-width: 200px;
+	max-width: 300px;
+}
+div.sidebar p {
+	margin: 0;
+	margin-bottom: 12px;
+	color: inherit;
+}
+div.sidebar p:last-child {
+	margin-bottom: 0px;
+}
+div.sidebar p.heading {
+	text-align: center;
+}
+div.sidebar label {
+	display: block;
+	color: inherit;
+}
+div.sidebar input[value="Standby"] {color: yellow;}
+div.sidebar input[value="Go"] {color: green;}
+div.sidebar input[value="Stop"] {color: red;}
+div.sidebar > div.secondary {
+	border-top-width: 1px;
+	flex: 1;
+}
+div.sidebar > div.tertiary {
+	padding-top: 0px;
+}
+div.sidebar input {
+	background: none;
+	border: none;
+	width: 65px;
+	display: inline-block;
+	padding: 0px;
+}
+div.sidebar input.coupler {
+	width: 100%;
+	margin: 5px 0px;
+}
+div.sidebar input.coupler::placeholder {
+	content: "Missing Value"
+}
+div.sidebar .button1 {
+	width: 100%;
+}
+div.block_label {
+	text-align: center;
+	margin-bottom: 12px;
+}
+div.launch_controls {
+	flex: 8;
+	max-height: 160px;
+	justify-content: space-between;
+}
+div.launch_controls .full_height {
+	height: 136px;
+}
+div.launch_controls > .sub_module,div.launch_controls .sub_module.umbilical > * {
+	margin-right: 6px;
+	max-width: 140px;
+}
+div.launch_controls > .sub_module {
+	border-right: none;
+}
+div.launch_controls > .sub_module:last-child {
+	margin-right: 0px;
+}
+div.launch_controls > .sub_module > * {
+	width: 100%;
+}
+div.launch_controls .button_group .button1 {
+	margin-bottom: 6px;
+}
+div.launch_controls input {
+	width: 100%;
+}
+div.launch_controls .sub_module.abort,div.launch_controls .sub_module.mass,div.launch_controls .sub_module.igniter {
+	width: 200px;
+}
+div.launch_controls .sub_module.umbilical {
+	max-width: 300px;
+}
+div.readouts {
+	display: inline-block;
+	padding: 4px;
+	text-align: left;
+	position: relative;
+	color: inherit;
+}
+div.readouts-header {
+	padding: 10px;
+	cursor: move;
+}
+#btn_check_ignition {
+	margin-top: 12px;
+}
+#mass_target {
+	border-radius: 6px;
+}
+#draggable {
+	
+}
