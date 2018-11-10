@@ -1,0 +1,24 @@
+Each type of data will start with a character specific to that message followed by the actual
+message itself. Each message will be terminated by a comma.
+For messages with components (ex x y z): will be seperated by a space.
+
+Float data will be in 4 bytes sent over.
+
+Ex message for acceleration
+
+A[accel x] [accel y] [accel z],
+
+MS5611 Pressure Sensor Data:
+P - pressure
+T - temperature
+
+IMU Data:
+A - acceleration (has 3 axis)
+M - magnetic field (has 3 axis)
+G - gyro (has 3 axis)
+
+GPS Data:
+L - location data (latitude - positive means north, longitude - positive means west)
+U - universal time (hours minutes seconds)
+H - altitude
+S - ground velocity (track made good - relative to true north, speed)

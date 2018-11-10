@@ -7,6 +7,7 @@
  * which is not optimal for storing or transmitting the data.
  * 
  * Data is from the GPS is sent with NMEA protocol.
+ * North latitude will be positive, west longitude will be positive.
  */
 // atm, readings that will be used are the time, altitude, and coordinates
 // maybe speed?
@@ -33,6 +34,8 @@ struct GPS_Data {
   char long_coords[20];
   char lat_coords[20];
   char sealvl_alt[20];
+  char track_made_goodN[20]; // direction of speed relative to true north - the magnetic north track made good will be ignored
+  char grnd_speed[20];
 } gps_data;
 void clear_data() {
   memset(&gps_data, 0, sizeof(gps_data));
@@ -40,6 +43,8 @@ void clear_data() {
   gps_data.long_coords[0] = (char)(-1);
   gps_data.lat_coords[0] = (char)(-1);
   gps_data.sealvl_alt[0] = (char)(-1);
+  gps_data.track_made_goodN[0] = (char)(-1);
+  gps_data.grnd_speed[0] == (char)(-1);
 }
 
 void (*type_handler)(char data) = NULL; // function addressed here is a sentence specific handler to get the data we need from the string and commit appropriately
@@ -95,6 +100,8 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         }
       } else {
         Serial.println("Houston, we've got a problem!");
+        // clear all the fields
+        clear_data();
       }
       return;
     } else if (data == '*') { // start of checksum, end of current field
@@ -128,7 +135,74 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
       }
     }
 }
-
+void VTG_handler(char data) {
+  if (data == '\r' || data == '\n') { // signifies end of sentence - time to run checksum
+      // however, if final checksum process was not started, this sentence must be garbage
+      type_handler = NULL; // end of sentence in any checksum scenario
+      if (!checksum_en) {
+        // don't even bother with any checksums
+        return;
+      }
+      if (run_checksum()) { // if this part is ever entered it means the checksum was successful and we're committing data
+        if (gps_data.track_made_goodN[0] != -1) {
+          Serial.print("Track made good: "); Serial.println(gps_data.track_made_goodN);
+        }
+      } else {
+        Serial.println("Houston, we've got a problem!");
+        // clear all the fields
+        clear_data();
+      }
+      return;
+  } else if (data == '*') { // start of checksum, end of current field
+      field_no++;
+      checksum_en = true;
+      return; // no point in running rest of function
+    } else if (data == ',') { // indicates end of field
+      if (field_no == 2) { // track made good for true north
+        memcpy(gps_data.track_made_goodN, field_data, fieldLen); // temporarily copy track made good and we will check after if this is the track made good relative to true north
+      } else if (field_no == 3) { // indicates if track made good is relative to magnetic or true north
+        if (strcmp('T', field_data)) { // if they are different, the track made good is wrong we must reset the track made good field
+          memset(gps_data.track_made_goodN, 0, strlen(gps_data.track_made_goodN));
+          gps_data.track_made_goodN[0] = (char)(-1);
+        }
+      /*} else if (field_no == 3) {
+        if (gps_data.track_made_goodN[0] == -1) { // check if true north measurement already been recorded (we dont want to overwrite our data)
+          memcpy(gps_data.track_made_goodN, field_data, fieldLen); // temporarily copy track made good and we will check after if this is the track made good relative to true north
+        }
+      } else if (field_no == 4) {
+        if (gps_data.track_made_goodN[0] == -1) { // check if true north measurement already been recorded
+          if (strcmp('T', field_data)) { // if they are different, the track made good is wrong we must reset the track made good field
+          memset(gps_data.track_made_goodN, 0, strlen(gps_data.track_made_goodN));
+          gps_data.track_made_goodN[0] = (char)(-1);
+          }
+        }
+      } else if (field_no == 5) { // ground speed measurement, following field tells units
+        memcpy(gps_data.grnd_speed, field_data, fieldLen); // copy temporarily, check later
+      } else if (field_no == 6) {
+        if (strcmp('K', field_data)) { // if different, clear the grnd_speed
+          memset(gps_data.grnd_speed, 0, strlen(gps_data.grnd_speed));
+          gps_data.grnd_speed[0] = (char)(-1);
+        }*/
+      } else if (field_no == 8) { // ground speed measurement, following field tells units
+        memcpy(gps_data.grnd_speed, field_data, fieldLen); // copy temporarily, check later
+      } else if (field_no == 9) {
+        if (strcmp('K', field_data)) {
+          memset(gps_data.grnd_speed, 0, strlen(gps_data.grnd_speed));
+          gps_data.grnd_speed[0] = (char)(-1);
+        }
+      }
+      field_no++;
+      clear_field();
+      parity ^= data;
+    } else { // just add the data to the field if none of above criteria apply
+      // also run parity check if final checksum stage is not enabled
+      field_data[fieldLen] = data;
+      fieldLen++;
+      if (!checksum_en) {
+        parity ^= (uint8_t)data;
+      }
+    }
+}
 void discover_type(char data) { // assigned at beginning of sentence reading cycle - reads first few chars to get sentence type
   field_data[fieldLen] = data;
   fieldLen++;
@@ -148,9 +222,9 @@ void discover_type(char data) { // assigned at beginning of sentence reading cyc
     if (strcmp("GGA", typeField) == 0) {
       Serial.println("GGA type sentence detected!");
       type_handler = GGA_handler;
-    } else if (strcmp("RMC", typeField) == 0) {
-      Serial.println("RMC type sentence detected!");
-      // assign handler for RMC string type
+    } else if (strcmp("VTG", typeField) == 0) {
+      Serial.println("VTG type sentence detected!");
+      type_handler = VTG_handler;
     } else { // default case, means cannot recognize and we must disable string handler til next sentence start
       type_handler = NULL;
     }
