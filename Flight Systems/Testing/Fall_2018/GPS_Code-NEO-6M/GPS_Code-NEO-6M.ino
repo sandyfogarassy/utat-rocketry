@@ -17,12 +17,12 @@
 #define RX_pin 3
 #define TX_pin 5
 
-SoftwareSerial gps_st(RX_pin, TX_pin);
+//SoftwareSerial gps_st(RX_pin, TX_pin);
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  gps_st.begin(baud_rate);
+  Serial3.begin(baud_rate);
 }
 
 // Crap for reading our gps is below
@@ -88,6 +88,8 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         // check if a value for the following data fields has been recorded
         if (gps_data.time[0] != -1) {
           Serial.print("Time: "); Serial.println(gps_data.time);
+        } else { // if it is -1, means no time data has been recorded
+          Serial.println("Invalid time recorded!");
         }
         if (gps_data.long_coords[0] != -1) {
           Serial.print("Longitude: "); Serial.println(gps_data.long_coords);
@@ -97,6 +99,11 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         }
         if (gps_data.sealvl_alt[0] != -1) {
           Serial.print("Altitude above sea level: "); Serial.println(gps_data.sealvl_alt);
+        }
+
+        // tell if no location data at all
+        if (gps_data.long_coords[0] == -1 && gps_data.lat_coords[0] == -1) {
+          Serial.println("Invalid longitude and latitude coords recorded!");
         }
       } else {
         Serial.println("Houston, we've got a problem!");
@@ -231,9 +238,9 @@ void discover_type(char data) { // assigned at beginning of sentence reading cyc
   }
 }
 
-void loop() { // loop that interprets one character received at a time
-  while (gps_st.available() > 0) {
-    char data = gps_st.read();
+void loop_blah() { // loop that interprets one character received at a time
+  while (Serial3.available() > 0) {
+    char data = Serial3.read();
     //Serial.print(data);
     // '$' signifies the start of a new sentence
     if (data == '$') {
@@ -251,10 +258,14 @@ void loop() { // loop that interprets one character received at a time
       type_handler(data);
     }
   }
+  //_delay_ms(500);
 }
 
-void loop_debug() { // debugging loop, print out whatever is there from gps stream
-  while (gps_st.available() > 0 ) {
-    Serial.print((char)gps_st.read());
+void loop() { // debugging loop, print out whatever is there from gps stream
+  if (Serial3.available() >= 15) {
+  while (Serial3.available() > 0) {
+    Serial.print((char)Serial3.read());
   }
+  }
+  _delay_ms(500);
 }

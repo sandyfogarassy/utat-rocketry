@@ -2,16 +2,19 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 
-#define sd_chipSelect 8 // which pin is connected to CS pin of sd module pin
+#define sd_chipSelect 48 // which pin is connected to CS pin of sd module pin
 #define sd_fileName "RECOVER.txt"
 
 /*
- * 
- * Main code to run on the avionics bay.
- * 
- */
 
-union FloatBytes { float f;  char b[4]; }; // extremely useful for sending messages which are made of chars
+   Main code to run on the avionics bay.
+
+*/
+
+union FloatBytes {
+  float f;
+  char b[4];
+}; // extremely useful for sending messages which are made of chars
 
 char data2commit[100]; // data that we are going to add to sd card
 int commitLen; // size of above string - amount currently set to commit
@@ -24,10 +27,12 @@ int writeAmount(byte* data, int amount, byte addr) { // write an array of bytes 
   return Wire.endTransmission();
 }
 int readAmount(byte* data, int amount, byte addr) { // read amount of bytes to an array from an i2c device
+  Wire.beginTransmission(addr);
   int readAmount = Wire.requestFrom(addr, amount);
   for (int i = 0; i < amount; i++) {
     data[i] = Wire.read();
   }
+  Wire.endTransmission();
   return readAmount;
 }
 int writeToRegister(byte rgstr, byte* data, int size, byte addr) { // i2c write to address register
@@ -64,8 +69,9 @@ void commitData(char* msg, int msgLen) { // when a function has data to submit (
   memcpy(data2commit + commitLen, msg, msgLen);
   commitLen += msgLen;
 }
-File commitFile;
+
 void finishCommit() { // what we will do with the data - for now its just transferring to sd card
+  File commitFile;
   commitFile = SD.open(sd_fileName, FILE_WRITE);
   if (commitFile) {
     for (int i = 0; i < commitLen; i++) {
@@ -92,8 +98,7 @@ struct Ms5611_Cmd { // commands to be sent to be pressure sensor which is ms5611
 } ms5611_cmd;
 // predefined variables to prevent madness from creating and destroying variables every loop
 struct Ms5611_Vars {
-  int32_t dT, TEMP;
-  int64_t OFF, SENS, P;
+  int64_t OFF, SENS, P, dT, TEMP;
   char msg_temp[7]; // 7 bytes - initial +  4 bytes float + comma terminator + null terminator
   char msg_pressure[7]; // same size as above for same reasons
 } ms5611_vars;
@@ -123,12 +128,14 @@ void calcTempandPressure(float* temp, float* pressure, uint32_t* d1, uint32_t* d
   // pressure calculations
   ms5611_vars.OFF = ((int64_t)ms5611_coef(2) << 16) + ((ms5611_vars.dT * ms5611_coef(4)) >> 7);
   ms5611_vars.SENS = ((int32_t)ms5611_coef(1) << 15) + ((ms5611_vars.dT * ms5611_coef(3)) >> 8);
-  ms5611_vars.P = (((int64_t)*d1 * ms5611_vars.SENS >> 21) - ms5611_vars.OFF) >> 15;
+  ms5611_vars.P = (((int64_t) * d1 * ms5611_vars.SENS >> 21) - ms5611_vars.OFF) >> 15;
   *pressure = (float)ms5611_vars.P / 100.0f;
 }
 void setupMS5611() {
+  Serial.println("I need help");
   resetMS5611();
   _delay_ms(10); // wait a bit after restting
+  Serial.println("Houston we've got a problem!");
 
   // retrieve coefficients from the device's prom
   for (int i = 0; i < 6; i++) {
@@ -137,6 +144,7 @@ void setupMS5611() {
     writeAmount(data, 1, MS5611_addr);
     if (readAmount(data, 2, MS5611_addr)) {
       ms5611_c[i] = data[0] << 8 | data[1];
+      //Serial.println("Received coefficients!"); // debug
     } else {
       Serial.println("Failure to retrieve coefficient!");
     }
@@ -166,7 +174,7 @@ void ms5611_loop() {
   writeAmount(&ms5611_cmd.d2_4096, 1, MS5611_addr);
   _delay_ms(10); // conversion from analog takes a while
   writeAmount(&ms5611_cmd.adc_read, 1, MS5611_addr);
-  
+
   uint32_t d2; // raw temperature value after combining bytes
   if (readAmount(raw_data, 3, MS5611_addr) == 3) {
     for (int i = 0; i < 3; i++) { // arrange the bytes received into a 32 bit location, from high to low in order
@@ -187,7 +195,7 @@ void ms5611_loop() {
     ms5611_vars.msg_temp[i] = temp.b[i];
     ms5611_vars.msg_pressure[i] = pressure.b[i];
   }
- 
+
   commitData(ms5611_vars.msg_temp, 6);
   commitData(ms5611_vars.msg_pressure, 6);
 }
@@ -197,13 +205,13 @@ void ms5611_loop() {
 #define imu_int_pin 7 // interrupt pin number for imu data ready
 #define sample_rate 4 // sample rate has to be between 4 hz and 1000 hz
 
-void calcAccel(FloatBytes* data, int fsr) { // accepts 3 float values which store raw data 
+void calcAccel(FloatBytes* data, int fsr) { // accepts 3 float values which store raw data
   int convDiv = 1 << 14; // conversion divisor for 2g
   // for each double in FSR from 2, our conversion divisor must get divided by two to accomodate for bigger FSR during conversion
   // we can just divide our given FSR by 2 to find out what to divide our conversion divisor by
   fsr /= 2;
   convDiv /= fsr;
-  
+
   for (int i = 0; i < 3; i++) {
     data[i].f /= float(convDiv);
   }
@@ -246,30 +254,30 @@ struct IMU_Reg { // stores register values to for the mpu 9250
   static const byte int_enable = 0x38;
   static const byte i2c_mst_ctrl = 0x24;
   static const byte user_ctrl = 0x6A;
-  
+
   // registers for slave 0 handler
   static const byte slv0_addr = 0x25; // aka I2C_SLV0_ADDR - used for read/write mode and address set
   static const byte slv0_reg = 0x26; // aka I2C_SLV0_REG - address to start data transfer from in the slave device
   static const byte slv0_ctrl = 0x27; // aka I2C_SLV0_CTRL - does a bunch of crap im too lazy to write it all
-  static const byte slv0_do = 0x63; // aka I2C_SLV0_DO - data to be sent to slave device 
+  static const byte slv0_do = 0x63; // aka I2C_SLV0_DO - data to be sent to slave device
 
   static const byte ext_sens_data_00 = 0x49; // starting address for i2c slave readings - up to 23 bytes
-  
+
   static const byte int_status = 0x3A;
-  
+
   static const byte accel_x_H = 0x3B;
   /*static const byte accel_x_L = 0x3C;
-  static const byte accel_y_H = 0x3D;
-  static const byte accel_y_L = 0x3E;
-  static const byte accel_z_H = 0x3F;
-  static const byte accel_z_L = 0x40;*/
-  
+    static const byte accel_y_H = 0x3D;
+    static const byte accel_y_L = 0x3E;
+    static const byte accel_z_H = 0x3F;
+    static const byte accel_z_L = 0x40;*/
+
   static const byte gyro_x_H = 0x43;
   /*static const byte gyro_x_L = 0x44;
-  static const byte gyro_y_H = 0x45;
-  static const byte gyro_y_L = 0x46;
-  static const byte gyro_z_H = 0x47;
-  static const byte gyro_z_L = 0x48;*/
+    static const byte gyro_y_H = 0x45;
+    static const byte gyro_y_L = 0x46;
+    static const byte gyro_z_H = 0x47;
+    static const byte gyro_z_L = 0x48;*/
 } IMU_reg;
 struct IMU_bits { // bit values for the imu
   // pwr mgmt 1 bits
@@ -317,10 +325,10 @@ struct Mag_Reg { // register addresses for the magnetometer - AK8963
   // each direction measurement is 2 bytes long and is deposited in memory starting at the low byte
   static const byte x_L = 0x03;
   /*static const byte x_H = 0x04;
-  static const byte y_L = 0x05;
-  static const byte y_H = 0x06;
-  static const byte z_L = 0x07;
-  static const byte z_H = 0x08;*/
+    static const byte y_L = 0x05;
+    static const byte y_H = 0x06;
+    static const byte z_L = 0x07;
+    static const byte z_H = 0x08;*/
 
   // status 2 register - read this at the end of measurement to have this register refresh
   static const byte status_2 = 0x09;
@@ -339,7 +347,7 @@ struct Mag_Bits { // bit values for magnetometer
   static const byte SINGLE_MEASUREMENT = 1 << 0; // single measurement mode - only read once before no more updates to measurement registers
   static const byte CONT_MEASUREMENT_1 = 1 << 1; // 8Hz measurement update
   static const byte CONT_MEASUREMENT_2 = 0b0110; // 100Hz measurement update
-  
+
 } mag_bits;
 // vars to prevent the madness of construction and destruction of variables
 struct IMU_Vars {
@@ -393,11 +401,11 @@ void setupIMUInterrupt() {
   data |= IMU_bits.LATCH_INT_EN; // interrupt status remains until int_status is cleared
   //data |= bits.INT_STATUS_CLEAR; // will make int status get cleared with any read instead of clearing when int_status register is read
   data |= IMU_bits.ACTL; // active low interrupts
-  
+
   if (writeToRegister(IMU_reg.int_bypass_cfg, &data, 1, IMU_addr)) {
     Serial.println("Failure to write to int_bypass_cfg register!");
   } /* */
-  
+
   data = IMU_bits.RAW_DATA_EN;
   if (writeToRegister(IMU_reg.int_enable, &data, 1, IMU_addr)) {
     Serial.println("Failure to send int enable bits!");
@@ -427,7 +435,7 @@ int set_bypass(int state) { // bypass the mpu to be able to access the magnetome
 void setupMagnetometer() {
   byte data;
   // first we setup magnetometer by communicating with it directly
-  set_bypass(1); 
+  set_bypass(1);
   // first do a soft reset of the magnetometer
   //data = mag_bits.SOFT_RES;
   if (writeToRegister(mag_reg.cntl2, &data, 1, MAG_addr)) {
@@ -446,10 +454,10 @@ void setupMagnetometer() {
   mag_sens.x = sens[0]; mag_sens.y = sens[1]; mag_sens.z = sens[2];
 
   Serial.print("Sensitivity Values Magnetometer: "); Serial.print(mag_sens.x); Serial.print(" "); Serial.print(mag_sens.y); Serial.print(" "); Serial.println(mag_sens.z);
-  
+
   // we are done interacting directly with magnetometer at this point
   set_bypass(0);
-  
+
   // interrupts only trigger when external sensor data is loaded. also multiple masters can operate on lines
   data = IMU_bits.WAIT_FOR_ES | IMU_bits.MULT_MST_EN;
   writeToRegister(IMU_reg.i2c_mst_ctrl, &data, 1, IMU_addr);
@@ -459,9 +467,9 @@ void setupMagnetometer() {
   data |= MAG_addr; // in the same register, we put the address
   writeToRegister(IMU_reg.slv0_addr, &data, 1, IMU_addr);
   // register to start reading from - we'll do x measurement low register since that is first in full measurement sequence which is 6 bytes long - two bytes for each dimension
-  data = mag_reg.x_L;  
+  data = mag_reg.x_L;
   writeToRegister(IMU_reg.slv0_reg, &data, 1, IMU_addr);
-  
+
   // enable slave 0 handler
   data = IMU_bits.SLV_EN;
   data |= 7; // finally, tell that 7 bytes total in measurement data (two bytes for each dimension) must be read from the starting register address; extra byte is to read status_2 register which will make the sensor take another measurement
@@ -473,7 +481,7 @@ void setupMagnetometer() {
 }
 void setupIMU() {
   pinMode(imu_int_pin, INPUT_PULLUP); // interrupt pin will be active low
-  
+
   resetIMU();
   _delay_ms(200);
   byte data = 0x00;
@@ -507,7 +515,7 @@ void setupIMU() {
   data = 0b00;
   data <<= 3; // put in correct place for gyro fsr
   writeToRegister(IMU_reg.gyro_config, &data, 1, IMU_addr);
-  
+
   setupIMUInterrupt();
   setupMagnetometer();
 
@@ -521,8 +529,8 @@ void imu_loop() {
   // and each MSB byte register has it's corresponding LSB register after
   // magnetometer readings are also 16 bit values but LSB comes before the MSB
   // we'll store these in float values which are 32 bits long (enough to store the value)
-  
-  if (digitalRead(imu_int_pin) == LOW) { // only try reading if the interrupt on the device is triggered
+
+  if (true) { // only try reading if the interrupt on the device is triggered
     byte raw_data[6]; // raw data for each dimension for accel, gyro, mag each being 2 bytes long so in total 6 bytes
     if (readFromRegister(IMU_reg.int_status, raw_data, 1, IMU_addr) == 0) { // read int status register
       Serial.println("Failure to read from int status register!");
@@ -530,21 +538,21 @@ void imu_loop() {
     if ((IMU_bits.RAW_DATA_RDY_INT & raw_data[0]) == 0) { // check if interrupt occured because raw data was ready
       return;
     }
-    
+
     // Accel Reading Section
     FloatBytes accel[3]; // axies values will be stored in order x,y,z
     readFromRegister(IMU_reg.accel_x_H, raw_data, 6, IMU_addr);
     for (int i = 0; i < 3; i++) {
-      accel[i].f = raw_data[2*i] << 8 | raw_data[2*i + 1]; // convert the 2 byte values for each dimension into a single float value for conversion (while swapping low and high bytes)
+      accel[i].f = raw_data[2 * i] << 8 | raw_data[2 * i + 1]; // convert the 2 byte values for each dimension into a single float value for conversion (while swapping low and high bytes)
     }
     calcAccel(accel, 8); // 8g full scale range
-    
+
     // Gyro calculation section (this method for getting the values is better)
     // fsr for gyro currently is 250 DPS
     FloatBytes gyro[3]; // gyro values stored in order x y z
     readFromRegister(IMU_reg.gyro_x_H, raw_data, 6, IMU_addr);
     for (int i = 0; i < 3; i++) {
-      gyro[i].f = raw_data[2*i] << 8 | raw_data[2*i+1]; // convert the 2 byte values for each dimension into a single float value for conversion (while swapping low and high bytes)
+      gyro[i].f = raw_data[2 * i] << 8 | raw_data[2 * i + 1]; // convert the 2 byte values for each dimension into a single float value for conversion (while swapping low and high bytes)
     }
     calcGyro(gyro, 250); // 250 dps full scale range
 
@@ -552,7 +560,7 @@ void imu_loop() {
     FloatBytes mag[3];
     readFromRegister(IMU_reg.ext_sens_data_00, raw_data, 6, IMU_addr); // magnetometer is a sensor being read from by the IMU in master mode so we're reading from a register that got its data from the magnetometer
     for (int i = 0; i < 3; i ++) { // convert the 2 byte values for each dimension into a single float value for conversion
-      mag[i].f = raw_data[2*i + 1] << 8 | raw_data[2*i];
+      mag[i].f = raw_data[2 * i + 1] << 8 | raw_data[2 * i];
     }
     calcMag(mag, 16);
 
@@ -588,16 +596,16 @@ void imu_loop() {
 #define GPS_TX_pin 5
 #define GPS_baud_rate 9600
 
-SoftwareSerial gps_st(GPS_RX_pin, GPS_TX_pin);
+//SoftwareSerial Serial3(GPS_RX_pin, GPS_TX_pin);
 
 void setupGPS() {
-  gps_st.begin(GPS_baud_rate);
+  Serial3.begin(GPS_baud_rate);
 }
 
 // current task function pointer - assigned to a specific function to handle each type
 struct GPS_Data {
   char time[20];
-  
+  bool gps_str_read = false;
   char long_coords[20];
   char lat_coords[20];
   char sealvl_alt[20];
@@ -620,7 +628,7 @@ char field_data[20]; // current field data
 int fieldLen = 0; // number of chars read from current field
 int field_no = 0; // current field starting from 1 in the current sentence
 void clear_field() { // reset data stored from current field (make it empty)
-  memset(field_data,0,fieldLen);
+  memset(field_data, 0, fieldLen);
   fieldLen = 0;
 }
 bool checksum_en = false; // used by type handlers
@@ -642,140 +650,151 @@ bool run_checksum() { // at end of sentences for decision whether to commit
   return parity == result;
 }
 void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites tracked, altitude
-    if (data == '\r' || data == '\n') { // signifies end of sentence - time to run checksum
-      // however, if final checksum process was not started, this sentence must be garbage
-      type_handler = NULL; // end of sentence in any checksum scenario
-      if (!checksum_en) {
-        // don't even bother with any checksums
-        return;
-      }
-      if (run_checksum()) { // if this part is ever entered it means the checksum was successful and we're committing data
-        //Serial.println("Successful checksum!");
-        // check if a value for the following data fields has been recorded
-        char msg_location[12]; msg_location[0] = 'L'; msg_location[5] = ' '; msg_location[10] = ',';
-        if (gps_data.time[0] != -1) {
-          Serial.print("Time: "); Serial.println(gps_data.time);
-          FloatBytes time; time.f = atof(gps_data.time);
-          char msg_time[7]; msg_time[0] = 'U'; msg_time[5] = ','; // message designator for time
-          for (int i = 0; i < 4; i++) {
-            msg_time[i + 1] = time.b[i];
-          }
-          commitData(msg_time, 6);
-        }
-        if (gps_data.long_coords[0] != -1) {
-          Serial.print("Longitude: "); Serial.println(gps_data.long_coords);
-          FloatBytes longitude; longitude.f = 1;
-          if (gps_data.long_coords[strlen(gps_data.long_coords)] == 'E') { // data will be negative if its east
-            longitude.f = -1;
-          }
-          gps_data.long_coords[strlen(gps_data.long_coords)] = '0';
-          longitude.f *= atof(gps_data.long_coords);
-          for (int i = 0; i < 4; i++) {
-            msg_location[6 + i] = longitude.b[i];
-          }
-        }
-        if (gps_data.lat_coords[0] != -1) {
-          Serial.print("Latitude: "); Serial.println(gps_data.lat_coords);
-          FloatBytes latitude; latitude.f = 1;
-          if (gps_data.lat_coords[strlen(gps_data.lat_coords)] == 'E') { // data will be negative if its east
-            latitude.f = -1;
-          }
-          gps_data.lat_coords[strlen(gps_data.lat_coords)] = '0';
-          latitude.f *= atof(gps_data.long_coords);
-          for (int i = 0; i < 4; i++) {
-            msg_location[1 + i] = latitude.b[i];
-          }
-        }
-        if (gps_data.sealvl_alt[0] != -1) {
-          Serial.print("Altitude above sea level: "); Serial.println(gps_data.sealvl_alt);
-        }
-        commitData(msg_location, 11);
-      } else {
-        Serial.println("Houston, we've got a problem!");
-        // clear all the fields
-        clear_data();
-      }
+  if (data == '\r' || data == '\n') { // signifies end of sentence - time to run checksum
+    // however, if final checksum process was not started, this sentence must be garbage
+    type_handler = NULL; // end of sentence in any checksum scenario
+    if (!checksum_en) {
+      // don't even bother with any checksums
       return;
-    } else if (data == '*') { // start of checksum, end of current field
-      field_no++;
-      checksum_en = true;
-      return; // no point in running rest of function
-    } else if (data == ',') { // indicates end of field
-      // store data accordingly based on current field number
-      if (field_no == 2) { // second field number is time
-        memcpy(gps_data.time, field_data, fieldLen);
-      } else if (field_no ==  3) { // longitude field
-        memcpy(gps_data.long_coords, field_data, fieldLen);
-      } else if (field_no == 5) { // latitude field
-        memcpy(gps_data.lat_coords, field_data, fieldLen);
-      } else if (field_no == 4) { // indicates whether the longitude coords are north or south
-        gps_data.long_coords[strlen(gps_data.long_coords)] = field_data[0]; // place the char at the end of the string to indicate coord direction (N or S)
-      } else if (field_no == 6) { // whether latitude coords are west or east
-        gps_data.lat_coords[strlen(gps_data.lat_coords)] = field_data[0]; // char at end to indicate coord direction (W or E)
-      } else if (field_no == 10) { // altitude field
-        memcpy(gps_data.sealvl_alt, field_data, fieldLen);
-      }
-      field_no++;
-      clear_field();
-      parity ^= data;
-    } else { // just add the data to the field if none of above criteria apply
-      // also run parity check if final checksum stage is not enabled
-      field_data[fieldLen] = data;
-      fieldLen++;
-      if (!checksum_en) {
-        parity ^= (uint8_t)data;
-      }
     }
+    if (run_checksum()) { // if this part is ever entered it means the checksum was successful and we're committing data
+      //Serial.println("Successful checksum!");
+      // check if a value for the following data fields has been recorded
+      char msg_location[12]; msg_location[0] = 'L'; msg_location[5] = ' '; msg_location[10] = ',';
+      if (gps_data.time[0] != -1) {
+        Serial.print("Time: "); Serial.println(gps_data.time);
+        FloatBytes time; time.f = atof(gps_data.time);
+        char msg_time[7]; msg_time[0] = 'U'; msg_time[5] = ','; // message designator for time
+        for (int i = 0; i < 4; i++) {
+          msg_time[i + 1] = time.b[i];
+        }
+        commitData(msg_time, 6);
+      } else {
+        Serial.println("Invalid time data!");
+      }
+      if (gps_data.long_coords[0] != -1) {
+        Serial.print("Longitude: "); Serial.println(gps_data.long_coords);
+        FloatBytes longitude; longitude.f = 1;
+        if (gps_data.long_coords[strlen(gps_data.long_coords)] == 'E') { // data will be negative if its east
+          longitude.f = -1;
+        }
+        gps_data.long_coords[strlen(gps_data.long_coords)] = '0';
+        longitude.f *= atof(gps_data.long_coords);
+        for (int i = 0; i < 4; i++) {
+          msg_location[6 + i] = longitude.b[i];
+        }
+      }
+      if (gps_data.lat_coords[0] != -1) {
+        Serial.print("Latitude: "); Serial.println(gps_data.lat_coords);
+        FloatBytes latitude; latitude.f = 1;
+        if (gps_data.lat_coords[strlen(gps_data.lat_coords)] == 'E') { // data will be negative if its east
+          latitude.f = -1;
+        }
+        gps_data.lat_coords[strlen(gps_data.lat_coords)] = '0';
+        latitude.f *= atof(gps_data.long_coords);
+        for (int i = 0; i < 4; i++) {
+          msg_location[1 + i] = latitude.b[i];
+        }
+      }
+      if (gps_data.sealvl_alt[0] != -1) {
+        Serial.print("Altitude above sea level: "); Serial.println(gps_data.sealvl_alt);
+      }
+      commitData(msg_location, 11);
+
+      // tell if no location data at all is being recorded
+      if (gps_data.long_coords[0] == -1 && gps_data.lat_coords[0] == -1) {
+        Serial.println("Invalid longitude and latitude data!");
+      }
+    } else {
+      Serial.println("Houston, we've got a problem!");
+      // clear all the fields
+      clear_data();
+    }
+    // indicate that a gps string has been finished reading
+    gps_data.gps_str_read = true;
+    return;
+  } else if (data == '*') { // start of checksum, end of current field
+    field_no++;
+    checksum_en = true;
+    return; // no point in running rest of function
+  } else if (data == ',') { // indicates end of field
+    // store data accordingly based on current field number
+    if (field_no == 2) { // second field number is time
+      memcpy(gps_data.time, field_data, fieldLen);
+    } else if (field_no ==  3) { // longitude field
+      memcpy(gps_data.long_coords, field_data, fieldLen);
+    } else if (field_no == 5) { // latitude field
+      memcpy(gps_data.lat_coords, field_data, fieldLen);
+    } else if (field_no == 4) { // indicates whether the longitude coords are north or south
+      gps_data.long_coords[strlen(gps_data.long_coords)] = field_data[0]; // place the char at the end of the string to indicate coord direction (N or S)
+    } else if (field_no == 6) { // whether latitude coords are west or east
+      gps_data.lat_coords[strlen(gps_data.lat_coords)] = field_data[0]; // char at end to indicate coord direction (W or E)
+    } else if (field_no == 10) { // altitude field
+      memcpy(gps_data.sealvl_alt, field_data, fieldLen);
+    }
+    field_no++;
+    clear_field();
+    parity ^= data;
+  } else { // just add the data to the field if none of above criteria apply
+    // also run parity check if final checksum stage is not enabled
+    field_data[fieldLen] = data;
+    fieldLen++;
+    if (!checksum_en) {
+      parity ^= (uint8_t)data;
+    }
+  }
 }
 void VTG_handler(char data) {
   if (data == '\r' || data == '\n') { // signifies end of sentence - time to run checksum
-      // however, if final checksum process was not started, this sentence must be garbage
-      type_handler = NULL; // end of sentence in any checksum scenario
-      if (!checksum_en) {
-        // don't even bother with any checksums
-        return;
-      }
-      if (run_checksum()) { // if this part is ever entered it means the checksum was successful and we're committing data
-        if (gps_data.track_made_goodN[0] != -1) {
-          Serial.print("Track made good: "); Serial.println(gps_data.track_made_goodN);
-        }
-      } else {
-        Serial.println("Houston, we've got a problem!");
-        // clear all the fields
-        clear_data();
-      }
+    // however, if final checksum process was not started, this sentence must be garbage
+    type_handler = NULL; // end of sentence in any checksum scenario
+    if (!checksum_en) {
+      // don't even bother with any checksums
       return;
-  } else if (data == '*') { // start of checksum, end of current field
-      field_no++;
-      checksum_en = true;
-      return; // no point in running rest of function
-    } else if (data == ',') { // indicates end of field
-      if (field_no == 2) { // track made good for true north
-        memcpy(gps_data.track_made_goodN, field_data, fieldLen); // temporarily copy track made good and we will check after if this is the track made good relative to true north
-      } else if (field_no == 3) { // indicates if track made good is relative to magnetic or true north
-        if (strcmp('T', field_data)) { // if they are different, the track made good is wrong we must reset the track made good field
-          memset(gps_data.track_made_goodN, 0, strlen(gps_data.track_made_goodN));
-          gps_data.track_made_goodN[0] = (char)(-1);
-        }
-      } else if (field_no == 8) { // ground speed measurement, following field tells units
-        memcpy(gps_data.grnd_speed, field_data, fieldLen); // copy temporarily, check later
-      } else if (field_no == 9) {
-        if (strcmp('K', field_data)) {
-          memset(gps_data.grnd_speed, 0, strlen(gps_data.grnd_speed));
-          gps_data.grnd_speed[0] = (char)(-1);
-        }
+    }
+    if (run_checksum()) { // if this part is ever entered it means the checksum was successful and we're committing data
+      if (gps_data.track_made_goodN[0] != -1) {
+        Serial.print("Track made good: "); Serial.println(gps_data.track_made_goodN);
       }
-      field_no++;
-      clear_field();
-      parity ^= data;
-    } else { // just add the data to the field if none of above criteria apply
-      // also run parity check if final checksum stage is not enabled
-      field_data[fieldLen] = data;
-      fieldLen++;
-      if (!checksum_en) {
-        parity ^= (uint8_t)data;
+    } else {
+      Serial.println("Houston, we've got a problem!");
+      // clear all the fields
+      clear_data();
+    }
+    // indicate a gps string has been finished reading
+    gps_data.gps_str_read = true;
+    return;
+  } else if (data == '*') { // start of checksum, end of current field
+    field_no++;
+    checksum_en = true;
+    return; // no point in running rest of function
+  } else if (data == ',') { // indicates end of field
+    if (field_no == 2) { // track made good for true north
+      memcpy(gps_data.track_made_goodN, field_data, fieldLen); // temporarily copy track made good and we will check after if this is the track made good relative to true north
+    } else if (field_no == 3) { // indicates if track made good is relative to magnetic or true north
+      if (strcmp('T', field_data)) { // if they are different, the track made good is wrong we must reset the track made good field
+        memset(gps_data.track_made_goodN, 0, strlen(gps_data.track_made_goodN));
+        gps_data.track_made_goodN[0] = (char)(-1);
+      }
+    } else if (field_no == 8) { // ground speed measurement, following field tells units
+      memcpy(gps_data.grnd_speed, field_data, fieldLen); // copy temporarily, check later
+    } else if (field_no == 9) {
+      if (strcmp('K', field_data)) {
+        memset(gps_data.grnd_speed, 0, strlen(gps_data.grnd_speed));
+        gps_data.grnd_speed[0] = (char)(-1);
       }
     }
+    field_no++;
+    clear_field();
+    parity ^= data;
+  } else { // just add the data to the field if none of above criteria apply
+    // also run parity check if final checksum stage is not enabled
+    field_data[fieldLen] = data;
+    fieldLen++;
+    if (!checksum_en) {
+      parity ^= (uint8_t)data;
+    }
+  }
 }
 void discover_type(char data) { // assigned at beginning of sentence reading cycle - reads first few chars to get sentence type
   field_data[fieldLen] = data;
@@ -803,25 +822,29 @@ void discover_type(char data) { // assigned at beginning of sentence reading cyc
   }
 }
 void gps_loop() {
-  while (gps_st.available() > 0) {
-    char data = gps_st.read();
-    //Serial.print(data);
-    // '$' signifies the start of a new sentence
-    if (data == '$') {
-      // start new sentence reading cycle
-      checksum_en = false;
-      parity = 0;
-      field_no = 1;
-      clear_data();
-      clear_field();
-      type_handler = discover_type;
-      return;
+  while (Serial3.available() == 0); // wait until the gps has something to tell us
+  do { // first check if a string is available to be read
+    while (Serial3.available() > 0) {
+      char data = Serial3.read();
+      //Serial.print(data);
+      // '$' signifies the start of a new sentence
+      if (data == '$') {
+        // start new sentence reading cycle
+        checksum_en = false;
+        parity = 0;
+        field_no = 1;
+        clear_data();
+        clear_field();
+        type_handler = discover_type;
+        //return;
+        break;
+      }
+      // check if current sentence is already being interpretted as a specific type
+      if (type_handler != NULL) {
+        type_handler(data);
+      }
     }
-    // check if current sentence is already being interpretted as a specific type
-    if (type_handler != NULL) {
-      type_handler(data);
-    }
-  }
+  } while (!gps_data.gps_str_read); // keep looking for data until something useful to us is printed by the gps
 }
 
 
@@ -829,20 +852,26 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   if (!SD.begin(sd_chipSelect)) {
-   Serial.println("Failure to initialize SD card!");
+    Serial.println("Failure to initialize SD card!");
   }
+  Serial.println("AHHH");
 
   setupMS5611();
-  setupIMU();
+  //setupIMU();
   setupGPS();
   //_delay_ms(100);
 }
 
 void loop() {
-  ms5611_loop();
-  //_delay_ms(100);
-  imu_loop();
   gps_loop();
+  if (gps_data.gps_str_read) { // only read ms5611 if we gained data useful to us from the gps
+    ms5611_loop();
+    gps_data.gps_str_read = false; // only read this once per each useful read from gps!
+  }
+  //_delay_ms(100);
+  //imu_loop();
+  //_delay_ms(500);
+  //_delay_ms(500);
 
   finishCommit();
   //_delay_ms(100);
