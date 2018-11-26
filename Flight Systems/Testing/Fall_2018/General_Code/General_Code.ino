@@ -5,11 +5,22 @@
 #define sd_chipSelect 48 // which pin is connected to CS pin of sd module pin
 #define sd_fileName "RECOVER.txt"
 
+//#define UNO
+
 /*
 
    Main code to run on the avionics bay.
 
 */
+
+// adapt code for Arduino Uno target
+#ifdef UNO
+ #include <SoftwareSerial.h>
+ #define RX 3
+ #define TX 5
+ SoftwareSerial gps_st(RX, TX);
+ SoftwareSerial& Serial3 = gps_st;
+#endif
 
 union FloatBytes {
   float f;
@@ -191,10 +202,14 @@ void ms5611_loop() {
   Serial.print("Pressure data: "); Serial.println(pressure.f);
 
   // update the message template variables with the new data
-  for (int i = 1; i < 5; i++) {
-    ms5611_vars.msg_temp[i] = temp.b[i];
-    ms5611_vars.msg_pressure[i] = pressure.b[i];
+  for (int i = 0; i < 4; i++) {
+    ms5611_vars.msg_temp[i+1] = temp.b[i]; // the data in the string starts one after the first character as the first character tells what type of data the string contains
+    ms5611_vars.msg_pressure[i+1] = pressure.b[i];
   }
+  //ftoa(temp.f, ms5611_vars.msg_temp, 1);
+  dtostrf(temp.f, 1, 3, ms5611_vars.msg_temp);
+  //ftoa(pressure.f, ms5611_vars.msg_pressure, 1);
+  dtostrf(pressure.f, 1, 3, ms5611_vars.msg_temp);
 
   commitData(ms5611_vars.msg_temp, 6);
   commitData(ms5611_vars.msg_pressure, 6);
@@ -594,18 +609,46 @@ void imu_loop() {
 // GPS stuff
 #define GPS_RX_pin 3
 #define GPS_TX_pin 5
+//#define GPS_baud_rate 38400
 #define GPS_baud_rate 9600
 
-//SoftwareSerial Serial3(GPS_RX_pin, GPS_TX_pin);
+// these bytes being sent can control speed of gps read rate
+const unsigned char UBLOX_INIT[] PROGMEM = {
+  // Rate (pick one)
+  //0xB5,0x62,0x06,0x08,0x06,0x00,0x64,0x00,0x01,0x00,0x01,0x00,0x7A,0x12, //(10Hz)
+  0xB5,0x62,0x06,0x08,0x06,0x00,0xC8,0x00,0x01,0x00,0x01,0x00,0xDE,0x6A, //(5Hz)
+  //0xB5,0x62,0x06,0x08,0x06,0x00,0xE8,0x03,0x01,0x00,0x01,0x00,0x01,0x39, //(1Hz)
+
+  // Disable NMEA
+  //  0xB5,0x62,0x06,0x01,0x08,0x00,0xF0,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x24, // GxGGA off
+  0xB5,0x62,0x06,0x01,0x08,0x00,0xF0,0x01,0x00,0x00,0x00,0x00,0x00,0x01,0x01,0x2B, // GxGLL off
+  0xB5,0x62,0x06,0x01,0x08,0x00,0xF0,0x02,0x00,0x00,0x00,0x00,0x00,0x01,0x02,0x32, // GxGSA off
+  0xB5,0x62,0x06,0x01,0x08,0x00,0xF0,0x03,0x00,0x00,0x00,0x00,0x00,0x01,0x03,0x39, // GxGSV off
+  0xB5,0x62,0x06,0x01,0x08,0x00,0xF0,0x04,0x00,0x00,0x00,0x00,0x00,0x01,0x04,0x40, // GxRMC off
+  //  0xB5,0x62,0x06,0x01,0x08,0x00,0xF0,0x05,0x00,0x00,0x00,0x00,0x00,0x01,0x05,0x47, // GxVTG off
+};
+
 
 void setupGPS() {
-  Serial3.begin(GPS_baud_rate);
+  Serial3.begin(9600); // initial baud rate
+  //_delay_ms(100);
+  //Serial.flush(); Serial.begin(19200);
+  _delay_ms(100);
+  // setup the gps module according to the data stored in UBLOX_INIT
+  for (int i = 0; i < sizeof(UBLOX_INIT); i++) {
+    Serial3.write( pgm_read_byte(UBLOX_INIT + i) );
+  }
+  _delay_ms(100);
+  // reset serial for the new baud rate
+  //Serial3.flush();
+  //Serial3.begin(GPS_baud_rate);
 }
 
 // current task function pointer - assigned to a specific function to handle each type
 struct GPS_Data {
   char time[20];
   bool gps_str_read = false;
+  bool gga_str_read = false;
   char long_coords[20];
   char lat_coords[20];
   char sealvl_alt[20];
@@ -710,6 +753,8 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
       // clear all the fields
       clear_data();
     }
+    // indicate gga been read
+    gps_data.gga_str_read = true;
     // indicate that a gps string has been finished reading
     gps_data.gps_str_read = true;
     return;
@@ -822,9 +867,11 @@ void discover_type(char data) { // assigned at beginning of sentence reading cyc
   }
 }
 void gps_loop() {
+  //Serial.println("GPS LOOPPP");
   while (Serial3.available() == 0); // wait until the gps has something to tell us
   do { // first check if a string is available to be read
-    while (Serial3.available() > 0) {
+    while (!gps_data.gga_str_read) {
+      while (Serial3.available() > 0 && !gps_data.gga_str_read) {
       char data = Serial3.read();
       //Serial.print(data);
       // '$' signifies the start of a new sentence
@@ -844,12 +891,14 @@ void gps_loop() {
         type_handler(data);
       }
     }
+    }
+    gps_data.gga_str_read = false;
   } while (!gps_data.gps_str_read); // keep looking for data until something useful to us is printed by the gps
 }
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(GPS_baud_rate);
   Wire.begin();
   if (!SD.begin(sd_chipSelect)) {
     Serial.println("Failure to initialize SD card!");
@@ -857,22 +906,27 @@ void setup() {
   Serial.println("AHHH");
 
   setupMS5611();
-  //setupIMU();
+  setupIMU();
   setupGPS();
   //_delay_ms(100);
 }
 
+long prev;
 void loop() {
   gps_loop();
   if (gps_data.gps_str_read) { // only read ms5611 if we gained data useful to us from the gps
     ms5611_loop();
     gps_data.gps_str_read = false; // only read this once per each useful read from gps!
   }
+  //gps_data.gps_str_read = false;
   //_delay_ms(100);
-  //imu_loop();
+  imu_loop();
   //_delay_ms(500);
   //_delay_ms(500);
 
   finishCommit();
+  long cur = millis();
+  Serial.println(cur - prev);
+  prev = cur;
   //_delay_ms(100);
 }

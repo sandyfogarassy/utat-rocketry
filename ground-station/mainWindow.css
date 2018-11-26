@@ -102,5 +102,10 @@ div.readouts-header {
 	border-radius: 6px;
 }
 #draggable {
-	
+	cursor: move;
+}
+#status {
+	font-size: 15;
+	font-family: inherit;
+	margin-top: 20px;
 }

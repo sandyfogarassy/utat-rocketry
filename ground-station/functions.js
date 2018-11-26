@@ -16,8 +16,7 @@ var data_points = [];
 // Changing sensors/transducers
 // edits readout values that are displayed in the pre-launch requirements
 function editReadouts (changed_HTML_id, changed_HTML_inner, changed_li_id, changed_li_val) {
-  //document.getElementById(changed_HTML_id).innerHTML = changed_HTML_inner;
-  //document.getElementById(changed_li_id).value = changed_li_val;
+  document.getElementById(changed_li_id).value = changed_li_val;
   var dropButton = "dropbtn" + changed_HTML_id[2];
   if (changed_HTML_id[2] < 5) {
     document.getElementById(dropButton).innerHTML = "TC" + changed_HTML_id[2] + ": " + changed_HTML_inner;
@@ -39,6 +38,7 @@ function reply_click(clicked_id) {
   }
   if (changed_HTML != null && changed_inner != null && list_index != null && list_index_value != null) {
     editReadouts(changed_HTML, changed_inner, list_index, list_index_value);
+    console.log(changed_HTML, changed_inner, list_index, list_index_value);
   }
 }
 
@@ -62,13 +62,13 @@ function setup(conditions, params) {
       if (j == 2) {
         document.getElementById("required_temp2").innerHTML = "Liquid Temp 2: " + setup_params[j][0] + ", " + setup_params[j][1] + " C";
       }
-      if (((Number(document.getElementById(checkval).innerHTML)) > (Number(setup_params[j][0]))) && ((Number(document.getElementById(checkval).innerHTML)) < (Number(setup_params[j][1])))) {
-        document.getElementById(checkres).innerHTML = "GO";
+      if (((Number(document.getElementById(checkval).placeholder)) > (Number(setup_params[j][0]))) && ((Number(document.getElementById(checkval).placeholder)) < (Number(setup_params[j][1])))) {
+        document.getElementById(checkres).value = "GO";
         document.getElementById(checkres).style.color = "green";
         document.getElementById(checkval).style.color = "green";
       }
       else {
-        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).value = "STOP";
         document.getElementById(checkres).style.color = "red";
         document.getElementById(checkval).style.color = "red";
       }
@@ -84,34 +84,34 @@ function setup(conditions, params) {
       if (j == 2) {
         document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 =  " + setup_params[j] + "C";
       }
-      if ((Number(document.getElementById(checkval).innerHTML)) == (Number(setup_params[j]))) {
-        document.getElementById(checkres).innerHTML = "GO";
+      if ((Number(document.getElementById(checkval).placeholder)) == (Number(setup_params[j]))) {
+        document.getElementById(checkres).value = "GO";
         document.getElementById(checkres).style.color = "green";
         document.getElementById(checkval).style.color = "green";
       }
       else {
-        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).value = "STOP";
         document.getElementById(checkres).style.color = "red";
         document.getElementById(checkval).style.color = "red";
       }
     }
     if (setup_conditions[j] == 'greater') {
       if (j == 0) {
-        document.getElementById("required_ox_pres").innerHTML = "Ox. Tank Pres >  " + setup_params[j] + "PSI";
+        document.getElementById("required_ox_pres").placeholder = "Ox. Tank Pres >  " + setup_params[j] + "PSI";
       }
       if (j == 1) {
-        document.getElementById("required_temp1").innerHTML = "Liquid Temp 1 >  " + setup_params[j] + "C";
+        document.getElementById("required_temp1").placeholder = "Liquid Temp 1 >  " + setup_params[j] + "C";
       }
       if (j == 2) {
-        document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 >  " + setup_params[j] + "C";
+        document.getElementById("required_temp2").placeholder = "Liquid Temp 2 >  " + setup_params[j] + "C";
       }
-      if ((Number(document.getElementById(checkval).innerHTML)) > (Number(setup_params[j]))) {
-        document.getElementById(checkres).innerHTML = "GO";
+      if ((Number(document.getElementById(checkval).placeholder)) > (Number(setup_params[j]))) {
+        document.getElementById(checkres).value = "GO";
         document.getElementById(checkres).style.color = "green";
         document.getElementById(checkval).style.color = "green";
       }
       else {
-        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).value = "STOP";
         document.getElementById(checkres).style.color = "red";
         document.getElementById(checkval).style.color = "red";
       }
@@ -126,13 +126,13 @@ function setup(conditions, params) {
       if (j == 2) {
         document.getElementById("required_temp2").innerHTML = "Liquid Temp 2 <  " + setup_params[j]; + "C";
       }
-      if ((Number(document.getElementById(checkval).innerHTML)) < (Number(setup_params[j]))) {
-        document.getElementById(checkres).innerHTML = "GO";
+      if ((Number(document.getElementById(checkval).placeholder)) < (Number(setup_params[j]))) {
+        document.getElementById(checkres).value = "GO";
         document.getElementById(checkres).style.color = "green";
         document.getElementById(checkval).style.color = "green";
       }
       else {
-        document.getElementById(checkres).innerHTML = "STOP";
+        document.getElementById(checkres).value = "STOP";
         document.getElementById(checkres).style.color = "red";
         document.getElementById(checkval).style.color = "red";
       }
@@ -160,26 +160,27 @@ function assigningReadouts(timestamp) {
 
   //assigning individual readout values to sensor/transducer
   var pt1 = avg(daqContents.PT1, daqContents.PT1.length);
-  document.getElementById("read5").innerHTML = pt1.toFixed(5);
+  document.getElementById("read_value5").innerHTML = pt1.toFixed(5);
 
   var pt2 = avg(daqContents.PT2, daqContents.PT3.length);
-  document.getElementById("read6").innerHTML = pt2.toFixed(5);
+  document.getElementById("read_value6").innerHTML = pt2.toFixed(5);
 
   var pt3 = avg(daqContents.PT3, daqContents.PT3.length);
-  document.getElementById("read7").innerHTML = pt3.toFixed(5);
+  document.getElementById("read_value7").innerHTML = pt3.toFixed(5);
   
   var thermo1 = avg(arduinoContents.Thermocouple1, arduinoContents.Thermocouple1.length);
-  document.getElementById("read1").innerHTML = thermo1.toFixed(5);
+  document.getElementById("read_value1").innerHTML = thermo1.toFixed(5);
 
   var thermo2 = avg(arduinoContents.Thermocouple2, arduinoContents.Thermocouple2.length);
-  document.getElementById("read2").innerHTML = thermo2.toFixed(5);
+  document.getElementById("read_value2").innerHTML = thermo2.toFixed(5);
 
   var thermo3 = avg(arduinoContents.Thermocouple3, arduinoContents.Thermocouple3.length);
-  document.getElementById("read3").innerHTML = thermo3.toFixed(5);
+  document.getElementById("read_value3").innerHTML = thermo3.toFixed(5);
 
   var thermo4 = avg(arduinoContents.Thermocouple4, arduinoContents.Thermocouple4.length);
-  document.getElementById("read4").innerHTML = thermo4.toFixed(5);
+  document.getElementById("read_value4").innerHTML = thermo4.toFixed(5);
 
+  document.getElementById("checkval5").placeholder = document.getElementById("mass_read_value").innerHTML;
 }
 
 function dragElement() {
@@ -227,8 +228,8 @@ window.onload = function () {
 
   document.getElementById("abort").addEventListener('click', function statusAbort(e) {
     e.preventDefault();
-    //document.getElementById("status").innerHTML = "Aborting...";
-    //document.getElementById("status").style.color = "yellow";
+    document.getElementById("status").innerHTML = "Aborting...";
+    document.getElementById("status").style.color = "yellow";
     window.open("abortWindow.html");
   });
 
@@ -299,7 +300,7 @@ window.onload = function () {
 
     else if (arg[0] == 'masstarget') {
       input_mass = Number(arg[1]);
-      document.getElementById("required_mass").innerHTML = "Liquid Mass >= " + input_mass + "kg";
+      document.getElementById("required_mass").placeholder = "Liquid Mass >= " + input_mass + "kg";
     }
 
     else if (arg == "abort_confirmed") {
@@ -316,7 +317,6 @@ window.onload = function () {
   function reload(n) {
     assignValuesToCheck();
     assigningReadouts(n);
-    console.log(n);
   }
 
   //plots
@@ -430,38 +430,37 @@ function assignValuesToCheck() {
   li6 = document.getElementById("li6").value;
   li7 = document.getElementById("li7").value;
 
-  read1 = document.getElementById("read1").innerHTML;
-  read2 = document.getElementById("read2").innerHTML;
-  read3 = document.getElementById("read3").innerHTML;
-  read4 = document.getElementById("read4").innerHTML;
-  read5 = document.getElementById("read5").innerHTML;
-  read6 = document.getElementById("read6").innerHTML;
-  read7 = document.getElementById("read7").innerHTML;
+  read1 = document.getElementById("read_value1").innerHTML;
+  read2 = document.getElementById("read_value2").innerHTML;
+  read3 = document.getElementById("read_value3").innerHTML;
+  read4 = document.getElementById("read_value4").innerHTML;
+  read5 = document.getElementById("read_value5").innerHTML;
+  read6 = document.getElementById("read_value6").innerHTML;
+  read7 = document.getElementById("read_value7").innerHTML;
 
   checklist.push([li1, read1], [li2, read2], [li3, read3], [li4, read4], [li5, read5], [li6, read6], [li7, read7]);
-
   for (i=0;i<7;i++) {
     if (checklist[i][0] == "5") {
-      document.getElementById("checkval2").innerHTML = checklist[i][1];
+      document.getElementById("checkval2").placeholder = checklist[i][1];
     }
     if (checklist[i][0] == "1") {
-      document.getElementById("checkval3").innerHTML = checklist[i][1];
+      document.getElementById("checkval3").placeholder = checklist[i][1];
     }
     if (checklist[i][0] == "2") {
-      document.getElementById("checkval4").innerHTML = checklist[i][1];
+      document.getElementById("checkval4").placeholder = checklist[i][1];
     }
   }
   setup(input_conditions, input_params);
   liquid_measured_mass = 1000;
   if (input_mass != undefined) {
-    document.getElementById("checkval5").innerHTML = Number(liquid_measured_mass);
+    document.getElementById("checkval5").placeholder = Number(liquid_measured_mass);
     if (Number(liquid_measured_mass) >= Number(input_mass)) {
-      document.getElementById("checkres5").innerHTML = "GO";
+      document.getElementById("checkres5").placeholder = "GO";
       document.getElementById("checkres5").style.color = "green";
       document.getElementById("checkval5").style.color = "green";
     }
     else {
-      document.getElementById("checkres5").innerHTML = "STOP";
+      document.getElementById("checkres5").placeholder = "STOP";
       document.getElementById("checkres5").style.color = "red";
       document.getElementById("checkval5").style.color = "red";
     }
@@ -470,52 +469,53 @@ function assignValuesToCheck() {
   igniter_check = true;
   if (flight_systems_check != undefined) {
     if (flight_systems_check == true) {
-      document.getElementById("checkval6").innerHTML = "Continuous";
+      document.getElementById("checkval6").placeholder = "Continuous";
       document.getElementById("checkval6").style.color = "green";
-      document.getElementById("checkres6").innerHTML = "GO";
+      document.getElementById("checkres6").placeholder = "GO";
       document.getElementById("checkres6").style.color = "green";
     }
 
     if (flight_systems_check != true) {
-      document.getElementById("checkval6").innerHTML = "No Continuity";
+      document.getElementById("checkval6").placeholder = "No Continuity";
       document.getElementById("checkval6").style.color = "red";
-      document.getElementById("checkres6").innerHTML = "STOP";
+      document.getElementById("checkres6").placeholder = "STOP";
       document.getElementById("checkres6").style.color = "red";
     }
   }
 
   if (igniter_check != undefined) {
     if (igniter_check == true) {
-      document.getElementById("checkval7").innerHTML = "Continuous";
+      document.getElementById("checkval7").placeholder = "Continuous";
       document.getElementById("checkval7").style.color = "green";
-      document.getElementById("checkres7").innerHTML = "GO";
+      document.getElementById("checkres7").placeholder = "GO";
       document.getElementById("checkres7").style.color = "green";
     }
 
     if (igniter_check != true) {
-      document.getElementById("checkval7").innerHTML = "No Continuity";
+      document.getElementById("checkval7").placeholder = "No Continuity";
       document.getElementById("checkval7").style.color = "red";
-      document.getElementById("checkres7").innerHTML = "STOP";
+      document.getElementById("checkres7").placeholder = "STOP";
       document.getElementById("checkres7").style.color = "red";
     }
   }
   tank_measured_mass = 1000;
 
   if (tank_measured_mass != undefined) {
-    document.getElementById("checkval1").innerHTML = tank_measured_mass;
+    document.getElementById("checkval1").placeholder = tank_measured_mass;
+    document.getElementById("checkres1").value = "";
   }
 
-  if ((document.getElementById("checkval2").style.color != "green") ||
+  /*if ((document.getElementById("checkval2").style.color != "green") ||
   (document.getElementById("checkval3").style.color != "green") ||
   (document.getElementById("checkval4").style.color != "green") ||
   (document.getElementById("checkval5").style.color != "green") ||
   (document.getElementById("checkval6").style.color != "green") ||
   (document.getElementById("checkval7").style.color != "green")) {
-    if (document.getElementById("btn_launch").classList.contains("btn_launch_enabled")) {
+    if (document.getElementById("btn_arm_igniter").style.color != "grey") {
       alert("Igniter has been disarmed");
     }
-    document.getElementById("btn_launch").className = "btn_launch_disabled";
-  }
+    document.getElementById("btn_arm_igniter").className = "btn_launch_disabled";
+}*/
 }
 
 function functionDelay() {
@@ -531,12 +531,14 @@ function armIgniter() {
   (document.getElementById("checkval5").style.color == "green") &&
   (document.getElementById("checkval6").style.color == "green") &&
   (document.getElementById("checkval7").style.color == "green")) {
-    document.getElementById("btn_launch").className = "btn_launch_enabled";
-    document.getElementById("btn_launch").disabled = false;
+    document.getElementById("btn_arm_igniter").classList.toggle('button1 full_height');
+    document.getElementById("btn_arm_igniter").style.background = rgb(137,104,238);
+    document.getElementById("btn_arm_igniter").style.color = white;
+    document.getElementById("btn_arm_igniter").style.cursor = pointer;
   }
 
   else {
-    document.getElementById("btn_launch").className = "btn_launch_disabled";
+    document.getElementById("btn_arm_igniter").style.color = grey;
   }
 }
 
