@@ -1,0 +1,27 @@
+div.program_selection {
+  width: 300px;
+  border-radius: 6px;
+  border-width: 4px;
+}
+div.program_selection div.header {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  border-bottom-width: inherit;
+}
+div.program_selection label {
+  display: block;
+  padding: 20px;
+  padding-bottom: 0px;
+}
+div.program_selection label:last-child {
+  padding-bottom: 20px;
+}
+div.program_selection input[type="radio"]:checked + span {
+  color: white;
+  text-decoration: underline;
+}
+div.program_selection input[type="radio"] {
+  display: none;
+}

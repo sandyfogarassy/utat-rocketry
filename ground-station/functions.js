@@ -10,7 +10,6 @@ var tank_measured_mass;
 var liquid_measured_mass;
 var flight_systems_check = false;
 var igniter_check = false;
-var data_points = [];
 
 window.onload = function () {
 /*
