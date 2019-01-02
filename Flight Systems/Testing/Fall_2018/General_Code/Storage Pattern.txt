@@ -1,0 +1,33 @@
+Each message of each data type will start with a character specific to that message followed by the actual
+message itself. All messages must contain a timestamp of the form long in milliseconds. This will be 4 bytes in size as longs have 4 bytes of size.
+For messages with components (ex. x y z): they will simply be adjacent.
+No spacing or terminators needed for messages as the message size length will be constant for each data type
+
+Float data will be in 4 bytes sent over.
+
+Ex. message for acceleration
+
+A[accel x][accel y][accel z][time stamp]
+
+MS5611 Pressure Sensor Data:
+P - pressure
+T - temperature
+
+IMU Data:
+A - acceleration (has 3 axis)
+M - magnetic field (has 3 axis)
+G - gyro (has 3 axis)
+
+GPS Data:
+L - location data (latitude - positive means north, longitude - positive means west)
+U - universal time (hours minutes seconds)
+H - altitude
+(will not be used due to problems with showing speed and track made good) S - ground velocity (track made good - relative to true north, speed)
+
+Potential Changes:
+L U H data gets put together into one string with only one time rather than
+put times seperately for their own strings as these data gets received all
+at the same time.
+
+A M G data gets put together into one string to be sent at once rather than seperately
+as data for each of these often come at the same time so bytes stored for time can be reduced.
