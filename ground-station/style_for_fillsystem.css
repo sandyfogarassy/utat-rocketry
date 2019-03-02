@@ -1,0 +1,152 @@
+.fill_system {
+  width:'100%';
+  height:'100%';
+  background-image: url('./FillPID.PNG');
+  position: 'absolute';
+  background-clip: 'padding-box';
+}
+
+
+.cover_for_ox {
+  position: absolute;
+  top: 62.9%;
+  height: 17.3%;
+  width: 6.5%;
+  left: 77.3%;
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid #000;
+  text-align: center;
+  color: #000;
+
+}
+
+.progress-bar {
+  position: absolute;
+  top: 62.9%;
+  height: 17.3%;
+  width: 6.5%;
+  left: 77.3%;
+  border-radius: 10px;
+  border: 1px solid #000;
+}
+
+.arrow_A1 {
+  position: absolute;
+  height: 3.5%;
+  width: 3.2%;
+  left: 32.4%;
+  top: 49.6%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+
+}
+
+.arrow_A3 {
+  position: absolute;
+  height: 3.8%;
+  width: 3%;
+  left: 46.1%;
+  top: 39.4%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  transform: rotate(90deg);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+  
+}
+
+.arrow_M1 {
+  position: absolute;
+  height: 3.8%;
+  width: 3%;
+  top: 38.6%;
+  left: 20.1%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  transform: rotate(90deg);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+}
+
+.arrow_A2 {
+  position: absolute;
+  height: 3.8%;
+  width: 3%;
+  left: 46.1%;
+  top: 71%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  transform: rotate(90deg);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+}
+
+.arrow_C5 {
+  position: absolute;
+  height: 3.8%;
+  width: 3%;
+  left: 46.1%;
+  top: 83%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  transform: rotate(90deg);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+}
+
+.arrow_A4 {
+  position: absolute;
+  height: 3.8%;
+  width: 3%;
+  left: 72.1%;
+  top: 17.7%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  transform: rotate(90deg);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+}
+
+.arrow_A5 {
+  position: absolute;
+  height: 3.8%;
+  width: 3%;
+  left: 88.3%;
+  top: 17.7%;
+  clip-path: polygon(0% 0%, 0% 100%, 100% 0%, 100% 100%);
+  transform: rotate(90deg);
+  border: 10px #FFFFFF;
+  background: #000;
+  transition-duration: 0.4s;
+}
+
+.hexagon {
+  position: absolute;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  top: 37%;
+  left: 85%;
+  background: #04fd3e;
+  width: 7%;
+  height: 9%;
+
+}
+.circle {
+  position: absolute;
+  background: #04fd3e;
+  width: 4%;
+  height: 8%;
+  top: 55%;
+  left: 19.665%;
+  border-radius: 50%;
+}
+
+.filler {
+  background: #32CD32	;
+  position: relative;
+  width: 100%;
+  border-radius: inherit;
+
+}
