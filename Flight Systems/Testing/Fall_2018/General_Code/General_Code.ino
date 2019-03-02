@@ -1,18 +1,20 @@
 #include <SD.h>
-#include <SoftwareSerial.h>
 #include <Wire.h>
-
-#define sd_fileName "RECOVER.txt"
-
-#define UNO
 
 /*
 
-   Main code to run on the avionics bay.
+   Main code to run on the avionics bay. Reads sensors, stores data onto an sd card, and transmits to ground over radio.
 
 */
 
-// adapt code for Arduino Uno target
+#define sd_fileName "RECOVER.txt" // name of file containing sensor readings on the sd card
+#define COMMIT_DATA_SIZE 100 // size of commit data buffer for saving and transmitting data
+const byte DELIMITER[] = {255, 0, 255, 100, 50}; // delimiter to be placed at beginning of messages for commits, always 5 bytes long
+
+// this is uncommented if testing on an arduino uno
+//#define UNO
+
+// adapt code for Arduino UNO target - used for testing on UNO
 #ifdef UNO
  #include <SoftwareSerial.h>
  #define RX 3
@@ -35,7 +37,12 @@ union ULongBytes {
   char b[4];
 }; // unsigned long version of above
 
-char data2commit[100]; // data that we are going to add to sd card
+union LongBytes {
+  long l;
+  char b[4];
+};
+
+char data2commit[COMMIT_DATA_SIZE]; // data that we are going to add to sd card
 int commitLen; // size of above string - amount currently set to commit
 
 int writeAmount(byte* data, int amount, byte addr) { // write an array of bytes to i2c device
@@ -56,7 +63,7 @@ int readAmount(byte* data, int amount, byte addr) { // read amount of bytes to a
 }
 int writeToRegister(byte rgstr, byte* data, int size, byte addr) { // i2c write to address register
   Wire.beginTransmission(addr);
-  Wire.write(rgstr);
+  Wire.write(rgstr); // first send in register address we want to write to
   for (int i = 0; i < size; i++) {
     Wire.write(data[i]);
   }
@@ -78,33 +85,51 @@ int readFromRegister(byte rgstr, byte* buffer, int amount, byte addr) { // i2c r
   return readAmount;
 }
 void commitData(char* msg) { // when a function has data to submit (for now it will just be onto an sd card)
+  if ( (COMMIT_DATA_SIZE - commitLen) <= (strlen(msg) + 5) ) { // check if enough space to commit data
+    return; // dont bother committing due to data overflow
+  }
+  // add the delimiter first
+  memcpy(data2commit + commitLen, DELIMITER, 5); // delimiter is always 5 bytes long
+  commitLen += 5;
   // add data to be committed
   int msgLen = strlen(msg);
   memcpy(data2commit + commitLen, msg, msgLen);
   commitLen += msgLen;
 }
 void commitData(char* msg, int msgLen) { // when a function has data to submit (for now it will just be onto an sd card)
+  if ( (COMMIT_DATA_SIZE - commitLen) <= (msgLen + 5) ) { // check if enough space to commit data
+    return; // dont bother committing due to data overflow
+  }
+  // add the delimiter first
+  memcpy(data2commit + commitLen, DELIMITER, 5); // delimiter is always 5 bytes long
+  commitLen += 5;
   // add data to be committed
   memcpy(data2commit + commitLen, msg, msgLen);
   commitLen += msgLen;
 }
 
-void finishCommit() { // what we will do with the data - for now its just transferring to sd card
+void finishCommit() { // what we will do with the data - put over radio and store onto sd card
   File commitFile;
   commitFile = SD.open(sd_fileName, FILE_WRITE);
-  if (commitFile) {
-    byte bytesWritten;
-    for (int i = 0; i < commitLen; i++) {
-      //Serial.print(data2commit[i]);
-      bytesWritten = commitFile.write(data2commit[i]);
-    }
-    //if (bytesWritten < commitLen) {
-    //Serial.print("Bytes Written: "); Serial.println(bytesWritten);
-    //}
-    commitFile.close();
-  } else {
+  if (!commitFile)
     Serial.println("Failure, file not open!");
+  byte bytesWritten;
+  for (int i = 0; i < commitLen; i++) {
+    //Serial.print(data2commit[i]);
+    if (commitFile) 
+      bytesWritten = commitFile.write(data2commit[i]);
+    #ifndef UNO
+      Serial2.write(data2commit[i]); // print to radio as well
+    #endif
+    //Serial.write(data2commit[i]);
   }
+  //if (bytesWritten < commitLen) {
+  //Serial.print("Bytes Written: "); Serial.println(bytesWritten);
+  //}
+  if (commitFile)
+    commitFile.close();
+  //} else {
+  //}
   // clear the commit buffer
   memset(data2commit, 0, commitLen);
   commitLen = 0;
@@ -124,8 +149,11 @@ struct Ms5611_Cmd { // commands to be sent to be pressure sensor which is ms5611
 // predefined variables to prevent madness from creating and destroying variables every loop
 struct Ms5611_Vars {
   int64_t OFF, SENS, P, dT, TEMP;
-  char msg_temp[10]; // initial +  4 bytes float + 4 bytes time + null terminator
-  char msg_pressure[10]; // same size as above for same reasons
+  // following are 'templates' for storing messages with data from the ms5611 sensor
+  char msg_temp[6]; // initial +  4 bytes float + null terminator
+  char msg_timeTemp[6]; // Time of Temperature Reading: initial + 4 bytes long + null terminator
+  char msg_pressure[6]; // initial + 4 bytes float + null terminator
+  char msg_timePress[6]; // Time of Pressure Reading: initial + 4 bytes long + null terminator
 } ms5611_vars;
 
 // address of the sensor - depends on the value of the CSB pin
@@ -178,6 +206,8 @@ void setupMS5611() {
   // setup the message strings' intiator
   ms5611_vars.msg_temp[0] = 'T';
   ms5611_vars.msg_pressure[0] = 'P';
+  ms5611_vars.msg_timeTemp[0] = 'V';
+  ms5611_vars.msg_timePress[0] = 'U';
 }
 // loop procedure for ms5611
 void ms5611_loop() {
@@ -224,9 +254,9 @@ void ms5611_loop() {
     ms5611_vars.msg_temp[i+1] = temp.b[i]; // the data in the string starts one after the first character as the first character tells what type of data the string contains
     ms5611_vars.msg_pressure[i+1] = pressure.b[i];
   }*/
-  // load the times as well
-  memcpy(ms5611_vars.msg_temp + 5, time_temp.b, 4);
-  memcpy(ms5611_vars.msg_pressure + 5, time_temp.b, 4);
+  // update the time message variables for both pressure and temperature readings' time
+  memcpy(ms5611_vars.msg_timeTemp + 1, time_temp.b, 4);
+  memcpy(ms5611_vars.msg_timePress + 1, time_pressure.b, 4);
 
   // testing to see if there can be actual numbers stored in sd card
   //ftoa(temp.f, ms5611_vars.msg_temp, 1);
@@ -234,8 +264,10 @@ void ms5611_loop() {
   //ftoa(pressure.f, ms5611_vars.msg_pressure, 1);
   //dtostrf(pressure.f, 1, 3, ms5611_vars.msg_temp);
 
-  commitData(ms5611_vars.msg_temp, 9);
-  commitData(ms5611_vars.msg_pressure, 9);
+  commitData(ms5611_vars.msg_temp, 5);
+  commitData(ms5611_vars.msg_pressure, 5);
+  commitData(ms5611_vars.msg_timeTemp, 5);
+  commitData(ms5611_vars.msg_timePress, 5);
 }
 
 
@@ -389,9 +421,21 @@ struct Mag_Bits { // bit values for magnetometer
 } mag_bits;
 // vars to prevent the madness of construction and destruction of variables
 struct IMU_Vars {
-  char msg_accel[18]; // initial char + 3 accel comps * 4 bytes + 4 bytes time + null terminator
-  char msg_gyro[18]; // same size for same reasons as above
-  char msg_mag[18]; // same size for same reasons as above
+  // message template variables for messages from this sensor
+  //char msg_accel[18]; // initial char + 3 accel comps * 4 bytes + 4 bytes time + null terminator
+  char msg_accelX[6]; // initial char + 4 bytes float + null terminator
+  char msg_accelY[6]; // initial char + 4 bytes float + null terminator
+  char msg_accelZ[6]; // initial char + 4 bytes float + null terminator  
+  //char msg_gyro[18]; // same size for same reasons as above
+  char msg_gyroX[6]; // initial char + 4 bytes float + null terminator  
+  char msg_gyroY[6]; // initial char + 4 bytes float + null terminator
+  char msg_gyroZ[6]; // initial char + 4 bytes float + null terminator
+  //char msg_mag[18]; // same size for same reasons as above
+  char msg_magX[6]; // initial char + 4 bytes float + null terminator  
+  char msg_magY[6]; // initial char + 4 bytes float + null terminator
+  char msg_magZ[6]; // initial char + 4 bytes float + null terminator
+  // time of imu reading message template
+  char msg_time[6]; // initial char + 4 bytes long + null terminator
 } IMU_vars;
 
 const byte IMU_addr = 0b1101000; // imu address
@@ -558,9 +602,19 @@ void setupIMU() {
   setupMagnetometer();
 
   // setup the message strings - put in the initial characters
-  IMU_vars.msg_accel[0] = 'A';
-  IMU_vars.msg_gyro[0] = 'G';
-  IMU_vars.msg_mag[0] = 'M';
+  IMU_vars.msg_accelX[0] = 'A';
+  IMU_vars.msg_accelY[0] = 'B';
+  IMU_vars.msg_accelZ[0] = 'C';
+  
+  IMU_vars.msg_gyroX[0] = 'G';
+  IMU_vars.msg_gyroY[0] = 'H';
+  IMU_vars.msg_gyroZ[0] = 'I';
+  
+  IMU_vars.msg_magX[0] = 'M';
+  IMU_vars.msg_magY[0] = 'N';
+  IMU_vars.msg_magZ[0] = 'O';
+
+  IMU_vars.msg_time[0] = 'J';
 }
 void imu_loop() {
   // accel, gyro readings are all 16 bit values stored in two registers that are each one byte long
@@ -612,11 +666,24 @@ void imu_loop() {
     Serial.print("Magnetometer X Data!:"); Serial.println(mag[0].f);
     Serial.print("Magnetometer Y Data!:"); Serial.println(mag[1].f);
     Serial.print("Magnetometer Z Data!:"); Serial.println(mag[2].f);
+    
+    Serial.print("IMU Time: "); Serial.println(time_recorded.l);
 
     // create messages for accel, gyro, mag for commit
-    memcpy(IMU_vars.msg_accel + 1, accel, 12); // 12 because 4 bytes for each component * 3
-    memcpy(IMU_vars.msg_gyro + 1, gyro, 12);
-    memcpy(IMU_vars.msg_mag + 1, mag, 12);
+    // copy components individually for each component message
+    memcpy(IMU_vars.msg_accelX + 1, &accel[0], 4);
+    memcpy(IMU_vars.msg_accelY + 1, &accel[1], 4); // y component is second position of accel, but first position is 4 bytes long due to float
+    memcpy(IMU_vars.msg_accelZ + 1, &accel[2], 4); // z component is third position of accel, but first two components are 4 bytes long meaning 8 bytes total
+    
+    //memcpy(IMU_vars.msg_gyro + 1, gyro, 12);
+    memcpy(IMU_vars.msg_gyroX + 1, &gyro[0], 4);
+    memcpy(IMU_vars.msg_gyroY + 1, &gyro[1], 4); // y component is second position of accel, but first position is 4 bytes long due to float
+    memcpy(IMU_vars.msg_gyroZ + 1, &gyro[2], 4); // z component is third position of accel, but first two components are 4 bytes long meaning 8 bytes total
+    
+    //memcpy(IMU_vars.msg_mag + 1, mag, 12);
+    memcpy(IMU_vars.msg_magX + 1, &mag[0], 4);
+    memcpy(IMU_vars.msg_magY + 1, &mag[1], 4); // y component is second position of accel, but first position is 4 bytes long due to float
+    memcpy(IMU_vars.msg_magZ + 1, &mag[2], 4); // z component is third position of accel, but first two components are 4 bytes long meaning 8 bytes total
     /*for (int comp = 0; comp < 3; comp++) {
       // starting position of each component in the message
       int pos = 1 + (comp * 4); // 1 for offset from beginning to avoid initial character, multiplied by 4 since each component is 4 bytes long
@@ -626,15 +693,23 @@ void imu_loop() {
         IMU_vars.msg_mag[pos + i] = mag[comp].b[i];
       }
     }*/
-    // put times of reading in each message
-    memcpy(IMU_vars.msg_accel + 13, time_recorded.b, 4);
-    memcpy(IMU_vars.msg_gyro + 13, time_recorded.b, 4);
-    memcpy(IMU_vars.msg_mag + 13, time_recorded.b, 4);
+    // update time of reading template message
+    memcpy(IMU_vars.msg_time + 1, time_recorded.b, sizeof(unsigned long));
   
     //_delay_ms(100);
-    commitData(IMU_vars.msg_accel, 13);
-    commitData(IMU_vars.msg_gyro, 13);
-    commitData(IMU_vars.msg_mag, 13);
+    commitData(IMU_vars.msg_accelX, 5);
+    commitData(IMU_vars.msg_accelY, 5);
+    commitData(IMU_vars.msg_accelZ, 5);
+    
+    commitData(IMU_vars.msg_gyroX, 5);
+    commitData(IMU_vars.msg_gyroY, 5);
+    commitData(IMU_vars.msg_gyroZ, 5);
+    
+    commitData(IMU_vars.msg_magX, 5);
+    commitData(IMU_vars.msg_magY, 5);
+    commitData(IMU_vars.msg_magZ, 5);
+
+    commitData(IMU_vars.msg_time, 5);
   }
 }
 
@@ -675,7 +750,11 @@ struct GPS_Data {
 
   // check if a value for the following data fields has been recorded
   // initial char + 4 bytes longitude + 4 bytes latitude + 4 bytes time + null terminator = 14
-  char msg_location[14];
+  //char msg_location[14];
+  char msg_latitude[5]; // initial char + 4 bytes latitude + null terminator
+  char msg_longitude[5]; //initial char + 4 bytes longitude + null terminator
+  char msg_time[5]; // initial char + 4 bytes time + null terminator - this is actually the Arduino time that the gps reads the data, not the universal time from the gps
+  char msg_altitude[5]; // initial char + 4 bytes altitude + null terminator
 } gps_data;
 void clear_gps_data() {
   memset(&gps_data, 0, sizeof(gps_data));
@@ -685,11 +764,16 @@ void clear_gps_data() {
   gps_data.sealvl_alt[0] = (char)(-1);
   gps_data.track_made_goodN[0] = (char)(-1);
   gps_data.grnd_speed[0] == (char)(-1);
-  gps_data.msg_location[0] = 'L';
+  //gps_data.msg_location[0] = 'L';
 }
 
 void setupGPS() {
-  gps_data.msg_location[0] = 'L'; // initial character for location is L
+  // setup msg initiator characters
+  gps_data.msg_latitude[0] = 'K';
+  gps_data.msg_longitude[0] = 'L';
+  gps_data.msg_altitude[0] = 'Y';
+  gps_data.msg_time[0] = 'Z';
+  
   Serial3.begin(9600); // initial baud rate
   //_delay_ms(100);
   //Serial.flush(); Serial.begin(19200);
@@ -744,11 +828,11 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
       if (gps_data.time[0] != -1) {
         Serial.print("Time: "); Serial.println(gps_data.time);
         FloatBytes time; time.f = atof(gps_data.time); // FloatBytes is for conversion from float bytes to char bytes
-        char msg_time[10]; msg_time[0] = 'U'; // message for time for sd card commit
+        char msg_time[5]; msg_time[0] = 'U'; // message for time for sd card commit
         // copy time data into string
         memcpy(msg_time + 1, time.b, 4);
-        memcpy(msg_time + 5, gps_data.field_time.b, 4); // copy field recorded time
-        commitData(msg_time, 9);
+        //memcpy(msg_time + 5, gps_data.field_time.b, 4); // copy field recorded time
+        commitData(msg_time, 5);
       } else {
         Serial.println("Invalid time data!");
       }
@@ -760,7 +844,8 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         }
         gps_data.long_coords[strlen(gps_data.long_coords)] = '0';
         longitude.f *= atof(gps_data.long_coords);
-        memcpy(gps_data.msg_location + 5, longitude.b, 4);
+        memcpy(gps_data.msg_longitude + 1, longitude.b, 4);
+        commitData(gps_data.msg_longitude, 5);
       }
       if (gps_data.lat_coords[0] != -1) {
         Serial.print("Latitude: "); Serial.println(gps_data.lat_coords);
@@ -770,7 +855,8 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         }
         gps_data.lat_coords[strlen(gps_data.lat_coords)] = '0';
         latitude.f *= atof(gps_data.lat_coords);
-        memcpy(gps_data.msg_location + 1, latitude.b, 4);
+        memcpy(gps_data.msg_latitude + 1, latitude.b, 4);
+        commitData(gps_data.msg_latitude, 5);
         /*for (int i = 0; i < 4; i++) {
           gps_data.msg_location[1 + i] = latitude.b[i];
         }*/
@@ -781,18 +867,18 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         FloatBytes height; height.f = atof(gps_data.sealvl_alt);
         memcpy(msg_altitude + 1, height.b, 4);
         // must also include the time stamp from when this field was recorded
-        memcpy(msg_altitude + 5, gps_data.field_time.b, 4);
-        commitData(msg_altitude, 9);
+        //memcpy(msg_altitude + 5, gps_data.field_time.b, 4);
+        commitData(msg_altitude, 5);
       }
 
       // tell if no location data at all is being recorded
       if (gps_data.long_coords[0] == -1 && gps_data.lat_coords[0] == -1) {
         Serial.println("Invalid longitude and latitude data!");
-      } else {
-        // copy stored time for this field into the string
-        memcpy(gps_data.msg_location + 9, gps_data.field_time.b, 4);
-        //Serial.println(gps_data.msg_location);
-        commitData(gps_data.msg_location, 13);
+      }
+      // commit time of gps reading 
+      if (gps_data.long_coords[0] != -1 || gps_data.lat_coords[0] != -1 || gps_data.sealvl_alt[0]  != -1 || gps_data.time[0] != -1) {
+        memcpy(gps_data.msg_time + 1, &gps_data.field_time.l, 4);
+        commitData(gps_data.msg_time, 5);
       }
     } else {
       Serial.println("Houston, we've got a problem!");
@@ -835,7 +921,7 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
     }
   }
 }
-void VTG_handler(char data) {
+void VTG_handler(char data) { // handles VTG type strings, used for ground speed - currently not used as there are problems with the gps returning the ground speed in these strings
   if (data == '\r' || data == '\n') { // signifies end of sentence - time to run checksum
     // however, if final checksum process was not started, this sentence must be garbage
     type_handler = NULL; // end of sentence in any checksum scenario
@@ -914,63 +1000,131 @@ void discover_type(char data) { // assigned at beginning of sentence reading cyc
 }
 void gps_loop() {
   //Serial.println("GPS LOOPPP");
-  while (Serial3.available() == 0); // wait until the gps has something to tell us
-  do { // first check if a string is available to be read
-    while (!gps_data.gga_str_read) {
-      while (Serial3.available() > 0 && !gps_data.gga_str_read) {
-      char data = Serial3.read();
-      //Serial.print(data);
-      // '$' signifies the start of a new sentence
-      if (data == '$') {
-        // start new sentence reading cycle
-        clear_gps_data();
-        clear_gps_field();
-        gps_data.field_time.l = millis(); // record time asap to get the time that the field was sent
-        checksum_en = false;
-        parity = 0;
-        field_no = 1;
-        type_handler = discover_type;
-        //return;
-        break;
-      }
-      // check if current sentence is already being interpretted as a specific type
-      if (type_handler != NULL) {
-        type_handler(data);
-      }
+  //while (Serial3.available() == 0); // wait until the gps has something to tell us
+  //do { // first check if a string is available to be read
+  //  while (!gps_data.gga_str_read) {
+  
+  int bufsize = Serial3.available();
+  
+  for (int i = 0; i < bufsize; i++) {
+    char data = Serial3.read();
+    //Serial.print(data);
+    // '$' signifies the start of a new sentence
+    if (data == '$') {
+      // start new sentence reading cycle
+      clear_gps_data();
+      clear_gps_field();
+      gps_data.field_time.l = millis(); // record time asap to get the time that the field was sent
+      checksum_en = false;
+      parity = 0;
+      field_no = 1;
+      type_handler = discover_type;
+      //return;
+      break;
     }
+    // check if current sentence is already being interpretted as a specific type
+    if (type_handler != NULL) {
+      type_handler(data);
     }
-    gps_data.gga_str_read = false;
-  } while (!gps_data.gps_str_read); // keep looking for data until something useful to us is printed by the gps
+  }
+  //  }
+  //  gps_data.gga_str_read = false;
+  //} while (!gps_data.gps_str_read); // keep looking for data until something useful to us is printed by the gps
 }
 
+char stratoData[18];
+int stratoDataLen;
+LongBytes stratoTime;
+
+void strato_loop() { // stratologger portion of main loop
+  
+  if (stratoDataLen >= 18) { // things are getting out of hand, clear the buffer
+    memset(stratoData, 0, 18);
+    stratoDataLen = 0;
+    //Serial.print("BLYAT BLYAT BLYAT BLYAT BLYAT BLYAT Buffer clearing: "); Serial.println(stratoData);
+  }
+
+  //if (Serial1.available() > 0 && stratoDataLen < 18) {
+  
+  // clear out the serial buffer for this round
+  int bufSize;
+  #ifndef UNO
+  bufSize = Serial1.available();
+  #endif
+  //if (Serial1.available() > 0) {
+  for (int i = 0; i < bufSize; i++) {
+    char c;
+    #ifndef UNO
+    c = Serial1.read();
+    #endif
+
+    if (stratoDataLen == 0) { // update time at beginning of messages when dataLen is 0
+      stratoTime.l = millis();
+    }
+    
+    if (c == '\n') { // signifies end of current message
+      LongBytes height;
+      height.l = atoi(stratoData);
+      //Serial.print("MAJOR CYKA WE JUST GOT STRATOLOGGER READING REPORT TO COMRADE STALIN!\n");
+      Serial.print("Stratologger height: "); Serial.println(height.l);
+      
+      memset(stratoData, 0, 18);
+      stratoDataLen = 0;
+
+      // commit stratologger height
+      char msg[5]; msg[0] = 'W'; // initial char for stratologger altitude
+      memcpy(msg + 1, height.b, 4);
+      commitData(msg, 5);
+
+      // commit stratologger time
+      msg[0] = 'X'; // initial char for stratologger time
+      memcpy(msg + 1, stratoTime.b, 4);
+      commitData(msg, 5);
+      
+    } else if (c != '\r' && stratoDataLen < 18) { // \r is also in the message terminator, and is redundant for us
+      stratoData[stratoDataLen] = c;
+      stratoDataLen++;
+    } 
+  }
+  Serial.print("dataLen Value: "); Serial.println(stratoDataLen);
+}
+void setupStrato() {
+  stratoDataLen = 0;
+  stratoTime.l = 0;
+}
 
 void setup() {
   Serial.begin(GPS_baud_rate);
+  #ifndef UNO
+    Serial2.begin(9600); // radio serial init
+    Serial1.begin(9600); // stratologger serial init
+  #endif
+  
   Wire.begin();
-  if (!SD.begin(sd_chipSelect)) {
+  
+  if (SD.begin(sd_chipSelect)) {
+    Serial.println(F("Successful SD start!"));
+  } else {
     Serial.println(F("Failure to initialize SD card!"));
   }
-  Serial.println(F("Successful SD start!"));
 
   //setupMS5611();
-  //setupIMU();
-  setupGPS();
+  setupIMU();
+  //setupGPS();
   //_delay_ms(100);
 }
 
 void loop() {
-  gps_loop();
+  //gps_loop();
   /*if (gps_data.gps_str_read) { // only read ms5611 if we gained data useful to us from the gps
-    ms5611_loop();
+    ms5611_loop();m
     gps_data.gps_str_read = false; // only read this once per each useful read from gps!
   }
   gps_data.gps_str_read = false;*/
   //_delay_ms(100);
-  //imu_loop();
+  imu_loop();
+  //strato_loop();
   //ms5611_loop();
-  //_delay_ms(500);
-  //_delay_ms(500);
-
+  
   finishCommit();
-  //_delay_ms(100);
 }
