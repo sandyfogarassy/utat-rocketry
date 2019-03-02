@@ -1,7 +1,9 @@
-var fs = require("fs"); 
+var fs = require("fs");
 const electron = require('electron');
 const {ipcRenderer} = electron;
+var jQuery = require('jquery');
 var CanvasJS = require('./node_modules/canvasjs/dist/canvasjs.min');
+var $ = require('./node_modules/jquery-ui-dist/jquery-ui.min.js');
 
 var data_points = [];
 var input_conditions = [];
@@ -26,13 +28,14 @@ function editReadouts (changed_HTML_id, changed_HTML_inner, changed_li_id, chang
   }
 }
 
-// function that is called from the inline styling mainWindow.html
+// function that is called from the inline styling of mainWindow.html
+// stores a clicked element as opposed to looping through all elements on a constant basis
 function reply_click(clicked_id) {
   var changed_HTML = "dv" + clicked_id[2];
   var changed_inner = document.getElementById(clicked_id).innerHTML;
   var list_index = "li" + clicked_id[2];
   var list_index_value = clicked_id[7];
-  
+
   if (clicked_id[2] > 4) {
     list_index_value = Number(list_index_value) + 4;
   }
@@ -140,6 +143,7 @@ function setup(conditions, params) {
   }
 }
 
+// averages values taken in from JSON file
 function avg(contents, length) {
   var accum = 0;
   for (var i in contents) {
@@ -149,6 +153,7 @@ function avg(contents, length) {
   return (result);
 }
 
+//giving readouts specific values
 function assigningReadouts(timestamp) {
 
   //read from JSON file
@@ -156,7 +161,7 @@ function assigningReadouts(timestamp) {
   var contents = fs.readFileSync(readFile);
   var jsonContents = JSON.parse(contents);
   var daqContents = jsonContents.DAQ;
-  var arduinoContents = jsonContents.Arduino; 
+  var arduinoContents = jsonContents.Arduino;
 
   //assigning individual readout values to sensor/transducer
   var pt1 = avg(daqContents.PT1, daqContents.PT1.length);
@@ -167,7 +172,7 @@ function assigningReadouts(timestamp) {
 
   var pt3 = avg(daqContents.PT3, daqContents.PT3.length);
   document.getElementById("read_value7").innerHTML = pt3.toFixed(5);
-  
+
   var thermo1 = avg(arduinoContents.Thermocouple1, arduinoContents.Thermocouple1.length);
   document.getElementById("read_value1").innerHTML = thermo1.toFixed(5);
 
@@ -181,10 +186,6 @@ function assigningReadouts(timestamp) {
   document.getElementById("read_value4").innerHTML = thermo4.toFixed(5);
 
   document.getElementById("checkval5").placeholder = document.getElementById("mass_read_value").innerHTML;
-}
-
-function dragElement() {
-  document.getElementById("draggable").style.cursor = "move";
 }
 
 // when the window loads, loop through this
@@ -367,8 +368,8 @@ window.onload = function () {
 
   var xVal = 0;
   var yVal = 100;
-  var updateInterval = 10000;
-  var dataLength = 20; // number of dataPoints visible at any point
+  var updateInterval = 1000;
+  var dataLength = 50; // number of dataPoints visible at any point
 
   var updateChart = function (count) {
 
@@ -381,6 +382,7 @@ window.onload = function () {
   			y: yVal
   		});
   		xVal++;
+      dataLength++;
   	}
 
   	if (data_points.length > dataLength) {
@@ -401,7 +403,7 @@ window.onload = function () {
   setInterval(function () {
     if (n > 3) {n = 3;}
     reload(n);
-    n++;}, 
+    n++;},
     1000
     );
 
@@ -541,4 +543,3 @@ function armIgniter() {
     document.getElementById("btn_arm_igniter").style.color = grey;
   }
 }
-

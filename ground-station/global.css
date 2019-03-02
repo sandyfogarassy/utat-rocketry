@@ -110,18 +110,19 @@ button {
 	color: red;
 }
 .dropbtn1, .dropbtn2, .dropbtn3, .dropbtn4, .dropbtn5, .dropbtn6, .dropbtn7 {
-	cursor: pointer;
+	cursor: move;
 	color: inherit;
 	padding: 6px;
 	font-size: 10px;
 }
 .dropdown {
 	/*Overall dropdown class*/
+	cursor: move;
 	position: relative;
 	display: inline-block;
 	margin: 4px;
 	background-image: linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%);
-    background-image: -webkit-linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%); 
+    background-image: -webkit-linear-gradient(top, rgb(137,104,238), rgb(137,104,238) 10%, transparent 10%, transparent 100%);
 }
 .dropdown-content {
 	/*the container for the options of the dropdown menu*/

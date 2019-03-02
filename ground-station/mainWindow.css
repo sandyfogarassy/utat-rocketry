@@ -101,7 +101,28 @@ div.readouts-header {
 #mass_target {
 	border-radius: 6px;
 }
-#draggable {
+#dropbtndiv1 {
+	cursor: move;
+}
+#dropbtndiv2 {
+	cursor: move;
+}
+#dropbtndiv3 {
+	cursor: move;
+}
+#dropbtndiv4 {
+	cursor: move;
+}
+#dropbtndiv5 {
+	cursor: move;
+}
+#dropbtndiv6 {
+	cursor: move;
+}
+#dropbtndiv7 {
+	cursor: move;
+}
+#dropbtndiv8 {
 	cursor: move;
 }
 #status {

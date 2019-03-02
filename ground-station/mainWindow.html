@@ -2,8 +2,15 @@
 	<head>
 		<title>Ground Station</title>
 		<script src="functions.js"></script>
+		<script>window.$ = window.jQuery = require('jquery');</script>
 		<link rel="stylesheet" type="text/css" href="global.css">
 		<link rel="stylesheet" type="text/css" href="mainWindow.css">
+		<script>
+  	$( function() {
+			for (var i = 1; i < 9; i++)
+    	$( "#dropbtndiv" + i ).draggable();
+  	} );
+  	</script>
 	</head>
 	<body class="flex container column default_border">
 		<div class="flex container row sidebar default_border">
@@ -53,95 +60,109 @@
 					<input id = "required_mass" class="coupler" type="text" readonly placeholder="Missing Value" value="">
 				</label>
 				<button class="button1 higher" id="btn_check_ignition">Check Ignition</button>
+				<ol>
+					<li id = "li1" value = ""></li>
+					<li id = "li2" value = ""></li>
+					<li id = "li3" value = ""></li>
+					<li id = "li4" value = ""></li>
+					<li id = "li5" value = ""></li>
+					<li id = "li6" value = ""></li>
+					<li id = "li7" value = ""></li>
+				</ol>
 			</div>
 		</div>
 		<div class="main flex container row default_border">
 			<div class="flex container column default_border">
 				<div class="fill_system module">
 					<div class="block_label">Fill System</div>
-					<div id = "draggable" onmouseover = "dragElement()">
 					<div class = "readouts">
-						<div class = "dropdown">
-							<button class = "dropbtn1" id = "dropbtn1">Thermocouple 1</button>
-							<div class = "read_value" id = "read_value1" value = 50>50K</div>
-							<div class = "dropdown-content">
-								<option id = "db1_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
-								<option id = "db1_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
-								<option id = "db1_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
-								<option id = "db1_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+						<div class = "dropdown" id = "dropbtndiv1">
+							<div class="dropbtndiv1" id = "dropbtndiv1">
+								<button class = "dropbtn1" id = "dropbtn1">Thermocouple 1</button>
+								<div class = "read_value" id = "read_value1" value = 50>50K</div>
+								<div class = "dropdown-content">
+									<option id = "db1_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
+									<option id = "db1_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
+									<option id = "db1_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
+									<option id = "db1_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown">
-							<button class = "dropbtn2" id = "dropbtn2">Thermocouple 2</button>
-							<div class = "read_value" id = "read_value2" value = 500>500K</div>
-							<div class = "dropdown-content">
-								<option id = "db2_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
-								<option id = "db2_val1" onClick="reply_click(this.id)">Ox. Temp 2</option>
-								<option id = "db2_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
-								<option id = "db2_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+						<div class = "dropdown" id = "dropbtndiv2">
+							<div class="dropbtndiv2" id = "dropbtndiv2">
+								<button class = "dropbtn2" id = "dropbtn2">Thermocouple 2</button>
+								<div class = "read_value" id = "read_value2" value = 500>500K</div>
+								<div class = "dropdown-content">
+									<option id = "db2_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
+									<option id = "db2_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
+									<option id = "db2_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
+									<option id = "db2_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown">
-							<button class = "dropbtn3" id = "dropbtn3">Thermocouple 3</button>
-							<div class = "read_value" id = "read_value3" value = 400>400K</div>
-							<div class = "dropdown-content">
-								<option id = "db3_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
-								<option id = "db3_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
-								<option id = "db3_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
-								<option id = "db3_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+						<div class = "dropdown" id = "dropbtndiv3">
+							<div class="dropbtndiv3" id = "dropbtndiv3">
+								<button class = "dropbtn3" id = "dropbtn3">Thermocouple 3</button>
+								<div class = "read_value" id = "read_value3" value = 400>400K</div>
+								<div class = "dropdown-content">
+									<option id = "db3_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
+									<option id = "db3_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
+									<option id = "db3_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
+									<option id = "db3_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown">
-							<button class = "dropbtn4" id = "dropbtn4">Thermocouple 4</button>
-							<div class = "read_value" id = "read_value4" value = 300>300K</div>
-							<div class = "dropdown-content">
-								<option id = "db4_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
-								<option id = "db4_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
-								<option id = "db4_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
-								<option id = "db4_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+						<div class = "dropdown" id = "dropbtndiv4">
+							<div class="dropbtndiv4" id = "dropbtndiv4">
+								<button class = "dropbtn4" id = "dropbtn4">Thermocouple 4</button>
+								<div class = "read_value" id = "read_value4" value = 300>300K</div>
+								<div class = "dropdown-content">
+									<option id = "db4_val1" onClick="reply_click(this.id)">Ox. Temp 1</option>
+									<option id = "db4_val2" onClick="reply_click(this.id)">Ox. Temp 2</option>
+									<option id = "db4_val3" onClick="reply_click(this.id)">Pre-Inj. Temp</option>
+									<option id = "db4_val4" onClick="reply_click(this.id)">Post-Inj. Temp</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown" onmouseover = "dragElement()">
-							<button class = "dropbtn5" id = "dropbtn5">Pressure Transducer 1</button>
-							<div class = "read_value" id = "read_value5" value = 600>600PSI</div>
-							<div class = "dropdown-content">
-								<option id = "db5_val1" onClick="reply_click(this.id)">Ox. Press</option>
-								<option id = "db5_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
-								<option id = "db5_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
+						<div class = "dropdown" id = "dropbtndiv5">
+							<div class="dropbtndiv5" id = "dropbtndiv5">
+								<button class = "dropbtn5" id = "dropbtn5">Pressure Transducer 1</button>
+								<div class = "read_value" id = "read_value5" value = 600>600PSI</div>
+								<div class = "dropdown-content">
+									<option id = "db5_val1" onClick="reply_click(this.id)">Ox. Press</option>
+									<option id = "db5_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
+									<option id = "db5_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown">
-							<button class = "dropbtn6" id = "dropbtn6">Pressure Transducer 2</button>
-							<div class = "read_value" id = "read_value6" value = 700>700PSI</div>
-							<div class = "dropdown-content">
-								<option id = "db6_val1" onClick="reply_click(this.id)">Ox. Press</option>
-								<option id = "db6_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
-								<option id = "db6_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
+						<div class = "dropdown" id = "dropbtndiv6">
+							<div class="dropbtndiv6" id = "dropbtndiv6">
+								<button class = "dropbtn6" id = "dropbtn6">Pressure Transducer 2</button>
+								<div class = "read_value" id = "read_value6" value = 700>700PSI</div>
+								<div class = "dropdown-content">
+									<option id = "db6_val1" onClick="reply_click(this.id)">Ox. Press</option>
+									<option id = "db6_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
+									<option id = "db6_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown">
-							<button class = "dropbtn7" id = "dropbtn7">Pressure Transducer 3</button>
-							<div class = "read_value" id = "read_value7" value = 800>800PSI</div>
-							<div class = "dropdown-content">
-								<option id = "db7_val1" onClick="reply_click(this.id)">Ox. Press</option>
-								<option id = "db7_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
-								<option id = "db7_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
+						<div class = "dropdown" id = "dropbtndiv7">
+							<div class="dropbtndiv7" id = "dropbtndiv7">
+								<button class = "dropbtn7" id = "dropbtn7">Pressure Transducer 3</button>
+								<div class = "read_value" id = "read_value7" value = 800>800PSI</div>
+								<div class = "dropdown-content">
+									<option id = "db7_val1" onClick="reply_click(this.id)">Ox. Press</option>
+									<option id = "db7_val2" onClick="reply_click(this.id)">Pre-Inj. Press</option>
+									<option id = "db7_val3" onClick="reply_click(this.id)">Post-Inj. Press</option>
+								</div>
 							</div>
 						</div>
-						<div class = "dropdown">
-							<button class = "mass_readout-btn" id = "mass_readout-btn">Liquid Mass</button>
-							<div class = "read_value" id = "mass_read_value">50kg</div>
+						<div class = "dropdown" id = "dropbtndiv8">
+							<div class="dropbtndiv8" id = "dropbtndiv8">
+								<button class = "mass_readout-btn" id = "mass_readout-btn">Liquid Mass</button>
+								<div class = "read_value" id = "mass_read_value">50kg</div>
+							</div>
 						</div>
-						<ol>
-							<li id = "li1" value = ""></li>
-							<li id = "li2" value = ""></li>
-							<li id = "li3" value = ""></li>
-							<li id = "li4" value = ""></li>
-							<li id = "li5" value = ""></li>
-							<li id = "li6" value = ""></li>
-							<li id = "li7" value = ""></li>
-						</ol>
-					</div>
 					</div>
 				</div>
 				<div class="plots module flex container row">
