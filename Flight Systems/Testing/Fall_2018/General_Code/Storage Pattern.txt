@@ -1,33 +1,63 @@
-Each message of each data type will start with a character specific to that message followed by the actual
-message itself. All messages must contain a timestamp of the form long in milliseconds. This will be 4 bytes in size as longs have 4 bytes of size.
-For messages with components (ex. x y z): they will simply be adjacent.
-No spacing or terminators needed for messages as the message size length will be constant for each data type
+Each message of each data type will start with a delimiter of 5 bytes and immediately following a
+character specific to that message followed by the actual message itself. 
+No spacing or terminators needed for messages as the message size length will be constant for each data type.
+Time for readings will be given by a time stamp message for each sensor. The readings of the sensor will be first printed
+and then the time reading message will follow.
 
-Float data will be in 4 bytes sent over.
+	Previous: acceleration given by 3 components together in a string. all messages have a timestamp before.
 
-Ex. message for acceleration
+Float and long data will be 4 bytes in size.
 
-A[accel x][accel y][accel z][time stamp]
+Ex. message for acceleration y component
+
+[delimiter]Y[accel y]
+
+Delimiter (individual byte values given):
+255 0 255 100 50
 
 MS5611 Pressure Sensor Data:
 P - pressure
 T - temperature
 
+U - pressure time
+V - temperature time
+
 IMU Data:
-A - acceleration (has 3 axis)
-M - magnetic field (has 3 axis)
-G - gyro (has 3 axis)
+A - acceleration x
+B - acceleration y
+C - acceleration z
+
+M - magnetic field x
+N - magnetic field y
+O - magnetic field z
+
+G - gyro x
+H - gyro y
+I - gyro z
+
+J - IMU time
+
+	Previous:
+	A - acceleration (has 3 axis)
+	M - magnetic field (has 3 axis)
+	G - gyro (has 3 axis)
 
 GPS Data:
-L - location data (latitude - positive means north, longitude - positive means west)
-U - universal time (hours minutes seconds)
-H - altitude
-(will not be used due to problems with showing speed and track made good) S - ground velocity (track made good - relative to true north, speed)
+K - latitude - positive means north
+L - longitude - positive means west
 
-Potential Changes:
-L U H data gets put together into one string with only one time rather than
-put times seperately for their own strings as these data gets received all
-at the same time.
+U - universal time (given by gps)
 
-A M G data gets put together into one string to be sent at once rather than seperately
-as data for each of these often come at the same time so bytes stored for time can be reduced.
+Y - altitude
+
+Z - GPS GGA string time reading (relevant to K, L, U, Y, gps fields)
+
+	Previous:
+	L - location data (latitude - positive means north, longitude - positive means west)
+	U - universal time (hours minutes seconds)
+	H - altitude
+	(will not be used due to problems with showing speed and track made good) R - ground velocity (track made good - relative to true north, speed)
+
+Stratologger Data:
+W - altitude
+X - stratologger record time
