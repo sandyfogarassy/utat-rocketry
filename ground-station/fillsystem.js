@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-let values = require('./test_numbers.json');
+/* let values = require('./test_numbers.json');
 let fill = require('./fillsystem2.png')
 let transducer = require('./pressure_transducer_values.json')
-let gauge = require('./pressure_gauge_values.json')
+let gauge = require('./pressure_gauge_values.json') */
  
 class App extends Component {
   constructor(props) {
