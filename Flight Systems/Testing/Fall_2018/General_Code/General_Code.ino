@@ -8,7 +8,7 @@
 */
 
 #define sd_fileName "RECOVER.txt" // name of file containing sensor readings on the sd card
-#define COMMIT_DATA_SIZE 100 // size of commit data buffer for saving and transmitting data
+#define COMMIT_DATA_SIZE 200 // size of commit data buffer for saving and transmitting data
 const byte DELIMITER[] = {255, 0, 255, 100, 50}; // delimiter to be placed at beginning of messages for commits, always 5 bytes long
 
 // this is uncommented if testing on an arduino uno
@@ -113,8 +113,9 @@ void finishCommit() { // what we will do with the data - put over radio and stor
   commitFile = SD.open(sd_fileName, FILE_WRITE);
   if (!commitFile)
     Serial.println("Failure, file not open!");
+    
   byte bytesWritten;
-  for (int i = 0; i < commitLen; i++) {
+  for (int i = 0; i < commitLen; i++) { // do byte-by-byte message handling instead of using Serial prints as they do not ignore certain bytes
     //Serial.print(data2commit[i]);
     if (commitFile) 
       bytesWritten = commitFile.write(data2commit[i]);
@@ -123,13 +124,10 @@ void finishCommit() { // what we will do with the data - put over radio and stor
     #endif
     //Serial.write(data2commit[i]);
   }
-  //if (bytesWritten < commitLen) {
-  //Serial.print("Bytes Written: "); Serial.println(bytesWritten);
-  //}
+  
   if (commitFile)
     commitFile.close();
-  //} else {
-  //}
+    
   // clear the commit buffer
   memset(data2commit, 0, commitLen);
   commitLen = 0;
@@ -684,19 +682,14 @@ void imu_loop() {
     memcpy(IMU_vars.msg_magX + 1, &mag[0], 4);
     memcpy(IMU_vars.msg_magY + 1, &mag[1], 4); // y component is second position of accel, but first position is 4 bytes long due to float
     memcpy(IMU_vars.msg_magZ + 1, &mag[2], 4); // z component is third position of accel, but first two components are 4 bytes long meaning 8 bytes total
-    /*for (int comp = 0; comp < 3; comp++) {
-      // starting position of each component in the message
-      int pos = 1 + (comp * 4); // 1 for offset from beginning to avoid initial character, multiplied by 4 since each component is 4 bytes long
-      for (int i = 0; i < 4; i++) { // loop through 4 bytes of each component
-        IMU_vars.msg_accel[pos + i] = accel[comp].b[i];
-        IMU_vars.msg_gyro[pos + i] = gyro[comp].b[i];
-        IMU_vars.msg_mag[pos + i] = mag[comp].b[i];
-      }
-    }*/
+    
     // update time of reading template message
     memcpy(IMU_vars.msg_time + 1, time_recorded.b, sizeof(unsigned long));
-  
+    //char msg_time[6]; msg_time[0] = 'J';
+    //memcpy(msg_time + 1, time_recorded.b, sizeof(unsigned long));
+    
     //_delay_ms(100);
+    // commit all sensor data
     commitData(IMU_vars.msg_accelX, 5);
     commitData(IMU_vars.msg_accelY, 5);
     commitData(IMU_vars.msg_accelZ, 5);
@@ -764,7 +757,6 @@ void clear_gps_data() {
   gps_data.sealvl_alt[0] = (char)(-1);
   gps_data.track_made_goodN[0] = (char)(-1);
   gps_data.grnd_speed[0] == (char)(-1);
-  //gps_data.msg_location[0] = 'L';
 }
 
 void setupGPS() {
@@ -828,7 +820,7 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
       if (gps_data.time[0] != -1) {
         Serial.print("Time: "); Serial.println(gps_data.time);
         FloatBytes time; time.f = atof(gps_data.time); // FloatBytes is for conversion from float bytes to char bytes
-        char msg_time[5]; msg_time[0] = 'U'; // message for time for sd card commit
+        char msg_time[5]; msg_time[0] = 'R'; // message for time for sd card commit
         // copy time data into string
         memcpy(msg_time + 1, time.b, 4);
         //memcpy(msg_time + 5, gps_data.field_time.b, 4); // copy field recorded time
@@ -862,8 +854,10 @@ void GGA_handler(char data) { // UTC, coordinates, quality, number of satellites
         }*/
       }
       if (gps_data.sealvl_alt[0] != -1) {
+        // CHANGE THIS TO USE VARIABLE INSIDE GPS_VARS
+        
         Serial.print("Altitude above sea level: "); Serial.println(gps_data.sealvl_alt);
-        char msg_altitude[10]; msg_altitude[0] = 'H';
+        char msg_altitude[5]; msg_altitude[0] = 'R';
         FloatBytes height; height.f = atof(gps_data.sealvl_alt);
         memcpy(msg_altitude + 1, height.b, 4);
         // must also include the time stamp from when this field was recorded
@@ -1108,7 +1102,7 @@ void setup() {
     Serial.println(F("Failure to initialize SD card!"));
   }
 
-  //setupMS5611();
+  setupMS5611();
   setupIMU();
   //setupGPS();
   //_delay_ms(100);
@@ -1124,7 +1118,7 @@ void loop() {
   //_delay_ms(100);
   imu_loop();
   //strato_loop();
-  //ms5611_loop();
+  ms5611_loop();
   
   finishCommit();
 }
