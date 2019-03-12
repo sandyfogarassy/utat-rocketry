@@ -4,6 +4,7 @@ No spacing or terminators needed for messages as the message size length will be
 Time for readings will be given by a time stamp message for each sensor. The readings of the sensor will be first printed
 and then the time reading message will follow.
 
+	Previous: acceleration given by 3 components together in a string. all messages have a timestamp before.
 
 Float and long data will be 4 bytes in size.
 
@@ -36,6 +37,10 @@ I - gyro z
 
 J - IMU time
 
+	Previous:
+	A - acceleration (has 3 axis)
+	M - magnetic field (has 3 axis)
+	G - gyro (has 3 axis)
 
 GPS Data:
 K - latitude - positive means north
@@ -47,6 +52,11 @@ Y - altitude
 
 Z - GPS GGA string time reading (relevant to K, L, U, Y, gps fields)
 
+	Previous:
+	L - location data (latitude - positive means north, longitude - positive means west)
+	U - universal time (hours minutes seconds)
+	H - altitude
+	(will not be used due to problems with showing speed and track made good) R - ground velocity (track made good - relative to true north, speed)
 
 Stratologger Data:
 W - altitude
