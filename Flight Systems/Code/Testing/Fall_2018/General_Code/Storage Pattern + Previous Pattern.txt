@@ -46,7 +46,7 @@ GPS Data:
 K - latitude - positive means north
 L - longitude - positive means west
 
-U - universal time (given by gps)
+R - universal time (given by gps)
 
 Y - altitude
 

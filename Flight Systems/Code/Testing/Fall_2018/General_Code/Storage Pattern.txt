@@ -1,0 +1,53 @@
+Each message of each data type will start with a delimiter of 5 bytes and immediately following a
+character specific to that message followed by the actual message itself. 
+No spacing or terminators needed for messages as the message size length will be constant for each data type.
+Time for readings will be given by a time stamp message for each sensor. The readings of the sensor will be first printed
+and then the time reading message will follow.
+
+
+Float and long data will be 4 bytes in size.
+
+Ex. message for acceleration y component
+
+[delimiter]Y[accel y]
+
+Delimiter (individual byte values given):
+255 0 255 100 50
+
+MS5611 Pressure Sensor Data:
+P - pressure
+T - temperature
+
+U - pressure time
+V - temperature time
+
+IMU Data:
+A - acceleration x
+B - acceleration y
+C - acceleration z
+
+M - magnetic field x
+N - magnetic field y
+O - magnetic field z
+
+G - gyro x
+H - gyro y
+I - gyro z
+
+J - IMU time
+
+
+GPS Data:
+K - latitude - positive means north
+L - longitude - positive means west
+
+R - universal time (given by gps)
+
+Y - altitude
+
+Z - GPS GGA string time reading (relevant to K, L, U, Y, gps fields)
+
+
+Stratologger Data:
+W - altitude
+X - stratologger record time
