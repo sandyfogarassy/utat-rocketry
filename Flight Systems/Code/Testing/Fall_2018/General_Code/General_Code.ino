@@ -8,7 +8,7 @@
 */
 
 #define sd_fileName "RECOVER.txt" // name of file containing sensor readings on the sd card
-#define COMMIT_DATA_SIZE 200 // size of commit data buffer for saving and transmitting data
+#define COMMIT_DATA_SIZE 400 // size of commit data buffer for saving and transmitting data
 const byte DELIMITER[] = {255, 0, 255, 100, 50}; // delimiter to be placed at beginning of messages for commits, always 5 bytes long
 
 // this is uncommented if testing on an arduino uno
@@ -117,8 +117,9 @@ void finishCommit() { // what we will do with the data - put over radio and stor
   byte bytesWritten;
   for (int i = 0; i < commitLen; i++) { // do byte-by-byte message handling instead of using Serial prints as they do not ignore certain bytes
     //Serial.print(data2commit[i]);
-    if (commitFile) 
+    if (commitFile) {
       bytesWritten = commitFile.write(data2commit[i]);
+    }
     #ifndef UNO
       Serial2.write(data2commit[i]); // print to radio as well
     #endif
@@ -152,6 +153,9 @@ struct Ms5611_Vars {
   char msg_timeTemp[6]; // Time of Temperature Reading: initial + 4 bytes long + null terminator
   char msg_pressure[6]; // initial + 4 bytes float + null terminator
   char msg_timePress[6]; // Time of Pressure Reading: initial + 4 bytes long + null terminator
+
+  // false if device is not actively responding to i2c messages and requires a reset
+  bool active = false;
 } ms5611_vars;
 
 // address of the sensor - depends on the value of the CSB pin
@@ -183,9 +187,11 @@ void calcTempandPressure(float* temp, float* pressure, uint32_t* d1, uint32_t* d
   *pressure = (float)ms5611_vars.P / 100.0f;
 }
 void setupMS5611() {
+  Serial.println("Setting up the MS5611!");
+  
   //Serial.println("I need help");
   resetMS5611();
-  _delay_ms(10); // wait a bit after restting
+  _delay_ms(10); // wait a bit after resetting
   //Serial.println("Houston we've got a problem!");
 
   // retrieve coefficients from the device's prom
@@ -206,11 +212,21 @@ void setupMS5611() {
   ms5611_vars.msg_pressure[0] = 'P';
   ms5611_vars.msg_timeTemp[0] = 'V';
   ms5611_vars.msg_timePress[0] = 'U';
+
+  ms5611_vars.active = true;
 }
 // loop procedure for ms5611
 void ms5611_loop() {
   // request for pressure
-  writeAmount(&ms5611_cmd.d1_4096, 1, MS5611_addr);
+  if (writeAmount(&ms5611_cmd.d1_4096, 1, MS5611_addr) != 0) { // if not 0 its a failure to write, which means some kind of malfunction
+    ms5611_vars.active = false;
+    return;
+  }
+  else if (!ms5611_vars.active) { // means the device came back online so send reset code
+    setupMS5611();
+    return;
+  }
+  
   _delay_ms(10); // conversion from analog takes a while
   writeAmount(&ms5611_cmd.adc_read, 1, MS5611_addr);
 
@@ -434,6 +450,9 @@ struct IMU_Vars {
   char msg_magZ[6]; // initial char + 4 bytes float + null terminator
   // time of imu reading message template
   char msg_time[6]; // initial char + 4 bytes long + null terminator
+
+  // true if the imu seems to be properly sending out data
+  bool active = false;
 } IMU_vars;
 
 const byte IMU_addr = 0b1101000; // imu address
@@ -560,6 +579,7 @@ void setupMagnetometer() {
   writeToRegister(IMU_reg.user_ctrl, &data, 1, IMU_addr);
 }
 void setupIMU() {
+  Serial.println("Setting up the IMU!");
   pinMode(imu_int_pin, INPUT_PULLUP); // interrupt pin will be active low
 
   resetIMU();
@@ -613,6 +633,9 @@ void setupIMU() {
   IMU_vars.msg_magZ[0] = 'O';
 
   IMU_vars.msg_time[0] = 'J';
+
+  // set imu to active to try reading
+  IMU_vars.active = true;
 }
 void imu_loop() {
   // accel, gyro readings are all 16 bit values stored in two registers that are each one byte long
@@ -623,9 +646,16 @@ void imu_loop() {
   if (true) { // only try reading if the interrupt on the device is triggered (disabled for now)
     byte raw_data[6]; // raw data for each dimension for accel, gyro, mag each being 2 bytes long so in total 6 bytes
     ULongBytes time_recorded; time_recorded.l = millis(); // earliest time that measurements could have occured (if the status register is deemed ready by next time, the measurements should be been ready around now)
-    if (readFromRegister(IMU_reg.int_status, raw_data, 1, IMU_addr) == 0) { // read int status register
+    if (readFromRegister(IMU_reg.int_status, raw_data, 1, IMU_addr) == 0) { // read int status register, a failure reflects a malfunction of the sensor
       Serial.println("Failure to read from int status register!");
+      IMU_vars.active = false;
+      return;
     }
+    else if (!IMU_vars.active) { // if code reached here, means imu came back online and we must set it up again
+      setupIMU();
+      return;
+    }
+    
     if ((IMU_bits.RAW_DATA_RDY_INT & raw_data[0]) == 0) { // check if interrupt occured because raw data was ready
       return;
     }
@@ -654,6 +684,12 @@ void imu_loop() {
       mag[i].f = raw_data[2 * i + 1] << 8 | raw_data[2 * i];
     }
     calcMag(mag, 16);
+
+    // check if magnetometer readings are exactly 0: means the imu likely needs to be set up again
+    /*if (mag[0].f == 0.0f && mag[1].f == 0.0f && mag[2].f == 0.0f) {
+      IMU_vars.active = false;
+      return;
+    }*/
 
     Serial.print("Accel X Data!:"); Serial.println(accel[0].f);
     Serial.print("Accel Y Data!:"); Serial.println(accel[1].f);
@@ -748,6 +784,9 @@ struct GPS_Data {
   char msg_longitude[5]; //initial char + 4 bytes longitude + null terminator
   char msg_time[5]; // initial char + 4 bytes time + null terminator - this is actually the Arduino time that the gps reads the data, not the universal time from the gps
   char msg_altitude[5]; // initial char + 4 bytes altitude + null terminator
+
+  // number of times that gps does not return something
+  int blankReads = 0;
 } gps_data;
 void clear_gps_data() {
   memset(&gps_data, 0, sizeof(gps_data));
@@ -999,7 +1038,7 @@ void gps_loop() {
   //  while (!gps_data.gga_str_read) {
   
   int bufsize = Serial3.available();
-  
+    
   for (int i = 0; i < bufsize; i++) {
     char data = Serial3.read();
     //Serial.print(data);
@@ -1080,7 +1119,7 @@ void strato_loop() { // stratologger portion of main loop
       stratoDataLen++;
     } 
   }
-  Serial.print("dataLen Value: "); Serial.println(stratoDataLen);
+  //Serial.print("dataLen Value: "); Serial.println(stratoDataLen);
 }
 void setupStrato() {
   stratoDataLen = 0;
@@ -1104,21 +1143,29 @@ void setup() {
 
   setupMS5611();
   setupIMU();
-  //setupGPS();
+  setupGPS();
+  setupStrato();
   //_delay_ms(100);
 }
 
+#define NO_STRATO_COUNT 45 // how many loops will occur without strato readings  (originally 33)
+int noStrato = 0; // how many reads have been done without stratologger
 void loop() {
-  //gps_loop();
+  gps_loop();
   /*if (gps_data.gps_str_read) { // only read ms5611 if we gained data useful to us from the gps
-    ms5611_loop();m
+    ms5611_loop();
     gps_data.gps_str_read = false; // only read this once per each useful read from gps!
   }
   gps_data.gps_str_read = false;*/
-  //_delay_ms(100);
   imu_loop();
-  //strato_loop();
   ms5611_loop();
+
+  if (noStrato >= NO_STRATO_COUNT) {
+    strato_loop(); 
+    noStrato = 0;
+  }
+  else
+    noStrato++;
   
   finishCommit();
 }
