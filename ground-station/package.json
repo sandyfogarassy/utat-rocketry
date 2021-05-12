@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "canvasjs": "^1.8.1",
-    "chart.js": "^2.7.2",
+    "chart.js": "^2.9.4",
     "jquery": "^3.3.1",
     "jquery-ui": "github:jquery/jquery-ui#1.11.4",
     "jquery-ui-bundle": "^1.12.1-migrate",
